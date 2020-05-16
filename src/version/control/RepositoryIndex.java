@@ -37,7 +37,11 @@ public class RepositoryIndex {
         lines.forEach((String line) -> {
             String[] words = line.split(",");
             IndexElement indexElement = new IndexElement(words[0]);
-            indexElement.createExistingElement(Long.parseLong(words[1]), Boolean.parseBoolean(words[2]), Boolean.parseBoolean(words[3]), words[4], words[5]);
+            indexElement.createExistingElement(Long.parseLong(words[1]), 
+                    Boolean.parseBoolean(words[2]), 
+                    Boolean.parseBoolean(words[3]), 
+                    words[4], words[5],
+                    Boolean.parseBoolean(words[6]));
             index.addEntry(indexElement);
         });
         return index;

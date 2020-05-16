@@ -27,6 +27,13 @@ public class vcs {
             if(args[0].equals("init")){
                 Repository repo =  Repository.init(currentDirectory);
             }
+            if(args[0].equals("add") ){
+                if(args.length > 1){
+                    
+                }else{
+                    System.out.println("Usage , add [file names | . ]");
+                }
+            }
         }else{
             System.out.println("please specify a command to execute");
         }

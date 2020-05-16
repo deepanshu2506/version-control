@@ -17,6 +17,7 @@ public class IndexElement {
     private Boolean isDirectory;
     private Long timeStamp;
     private boolean isStaged;
+    private boolean isModified;
     private String latestStagedHash;
     private String lastCommitHash;
 
@@ -27,20 +28,30 @@ public class IndexElement {
         this.isDirectory = false;
         this.latestStagedHash = "null";
         this.lastCommitHash = "null";
+        this.isModified = true;
     }
 
-    public IndexElement createExistingElement(Long timeStamp, boolean isDirectory, boolean isStaged, String latestCommitHash, String latestStagedHash) {
+    public IndexElement createExistingElement(Long timeStamp, boolean isDirectory, boolean isStaged, String latestCommitHash, String latestStagedHash,Boolean isModified) {
         this.timeStamp = timeStamp;
         this.isDirectory = isDirectory;
         this.isStaged = isStaged;
         this.lastCommitHash = lastCommitHash != "null" ? latestCommitHash : null;
         this.latestStagedHash = latestStagedHash != "null" ? latestStagedHash : null;
+        this.isModified = isModified;
         return this;
     }
 
     public void setAsDirectory() {
         this.isDirectory = true;
     }
+    public void setAsModified() {
+        this.isModified = true;
+    }
+    
+    public Boolean isModified(){
+        return this.isModified;
+    }
+
 
     public void stage() {
         this.isStaged = true;
@@ -53,6 +64,7 @@ public class IndexElement {
     public String getFilePath() {
         return filePath;
     }
+    
 
     public String getLatestStagedHash() {
         return latestStagedHash;
@@ -69,10 +81,10 @@ public class IndexElement {
     public void setLastCommitHash(String lastCommitHash) {
         this.lastCommitHash = lastCommitHash;
     }
-
+    
     @Override
     public String toString() {
-        return this.filePath + "," + this.timeStamp + "," + Boolean.toString(this.isDirectory) + "," + Boolean.toString(isStaged) + "," + this.lastCommitHash + "," + this.latestStagedHash;
+        return this.filePath + "," + this.timeStamp + "," + Boolean.toString(this.isDirectory) + "," + Boolean.toString(isStaged) + "," + this.lastCommitHash + "," + this.latestStagedHash +"," + this.isModified;
     }
 
 }

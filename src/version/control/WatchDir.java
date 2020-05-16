@@ -113,6 +113,7 @@ public class WatchDir implements Runnable {
     }
 
     private void processEvents() {
+        FileEvents fileEvents = new FileEvents(this.directory,this.repositoryFileIndex);
         for (;;) {
 
             WatchKey key;
@@ -128,20 +129,28 @@ public class WatchDir implements Runnable {
                 System.err.println("WatchKey not recognized");
                 continue;
             }
-            key.pollEvents().forEach((event) -> {
+            key.pollEvents().forEach((WatchEvent<?> event) -> {
                 WatchEvent.Kind kind = event.kind();
                 if (!(kind == OVERFLOW)) {
                     WatchEvent<Path> ev = cast(event);
                     Path name = ev.context();
-                    Path child = dir.resolve(name);
-                    System.out.format("%s $ %s: %s\n", this.directory, event.kind().name(), child);
+                    Path fileModified = dir.resolve(name);
+                    System.out.format("%s $ %s: %s\n", this.directory, event.kind().name(), fileModified);
                     if (recursive && (kind == ENTRY_CREATE)) {
                         try {
-                            if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
-                                registerAll(child);
+                            if (Files.isDirectory(fileModified, NOFOLLOW_LINKS)) {
+                                registerAll(fileModified);
                             }
                         } catch (IOException e) {
 
+                        }
+                    }
+
+                    if (kind == ENTRY_MODIFY  && !fileModified.endsWith("tracked.vcs")) {
+                        try{
+                            fileEvents.modifyEvent(fileModified);
+                        }catch(IOException ex){
+                            System.err.println("IOException at entry modify");
                         }
                     }
                     boolean valid = key.reset();
