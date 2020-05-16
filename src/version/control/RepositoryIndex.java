@@ -10,7 +10,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -21,10 +23,10 @@ import java.util.stream.Collectors;
 public class RepositoryIndex {
     private final static String RELATIVE_INDEXFILE_PATH = ".vcs/tracked.vcs";
     private final Path repoPath;
-    private final List<IndexElement> index;
+    private final Map<String , IndexElement> index;
     private RepositoryIndex(Path repoPath){
         this.repoPath = repoPath;
-        this.index = new ArrayList<>();
+        this.index = new HashMap<>();
         
     }
     
@@ -41,16 +43,16 @@ public class RepositoryIndex {
         return index;
     }
     public void addEntry(IndexElement item){
-        this.index.add(item);
+        this.index.put(item.getFilePath() ,item);
     }
     
     public IndexElement findByPath(String relativePath){
-        Optional<IndexElement> indexElement = this.index.stream().filter((indexItem) ->indexItem.getFilePath().equals(relativePath)).findAny();
-        return indexElement.isPresent()?indexElement.get():null;
+        IndexElement foundElement = index.get(relativePath);
+        return foundElement;
     }
     
     public void flushToStore() throws IOException{
-        List<String> lines = this.index.stream()
+        List<String> lines = this.index.values().stream()
                 .map((tuple) -> tuple.toString())
                 .collect(Collectors.toList());
 
