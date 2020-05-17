@@ -21,7 +21,7 @@ import vcs.*;
  */
 public class vcs {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         File repoList = new File("D:/vcs/repos.vcs");
         String currentDirectory = System.getProperty("user.dir");
         Repository repo = Repository.getRepo(currentDirectory);
@@ -33,23 +33,28 @@ public class vcs {
                     System.out.println("A repository already exists.");
                 }
             }
-            if (repo == null) {
+            if (repo != null) {
                 if (args[0].equals("add")) {
                     if (args.length > 1) {
                         Path[] paths = new Path[args.length - 1];
+
                         for (int i = 1; i < args.length; i++) {
+
                             paths[i - 1] = Paths.get(currentDirectory, args[i]);
                             repo.stage(paths);
                         }
                     } else {
                         System.out.println("Usage , add [file names | . ]");
                     }
-                } //other commands here
-            }else{
+                }//other commands here
+            } else {
                 System.out.println("Repository does not exist");
             }
         } else {
             System.out.println("please specify a command to execute");
         }
     }
+
 }
+
+

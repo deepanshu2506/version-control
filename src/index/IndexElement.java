@@ -47,7 +47,9 @@ public class IndexElement {
     public void setAsModified() {
         this.isModified = true;
     }
-    
+    public void clearModified() {
+        this.isModified = false;
+    }
     public Boolean isModified(){
         return this.isModified;
     }

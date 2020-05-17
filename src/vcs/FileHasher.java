@@ -82,12 +82,12 @@ public class FileHasher {
         Path bucketPath = objectsDirectoryPath.resolve(bucket);
         if (!Files.isDirectory(bucketPath)) {
             try {
-                Files.createDirectories(bucketPath);
+                bucketPath = Files.createDirectories(bucketPath);
             } catch (IOException ex) {
                 System.out.println("could not create bucket");
             }
         }
-        try (BufferedWriter writer = Files.newBufferedWriter(objectsDirectoryPath.resolve(hash.substring(2)), Charset.forName("UTF-8"))) {
+        try (BufferedWriter writer = Files.newBufferedWriter(bucketPath.resolve(hash.substring(2)), Charset.forName("UTF-8"))) {
             writer.write(fileContents);
         } catch (IOException ex) {
             ex.printStackTrace();

@@ -1,13 +1,16 @@
 package vcs;
 
+import index.IndexElement;
+import index.RepositoryIndex;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import static vcs.Constants.REGISTER_LOCATION;
 
 /*
@@ -23,13 +26,15 @@ public class Repository {
     private final FileHasher fileHasher;
     private final Path location;
     private boolean init;
+    private final RepositoryIndex index;
 
-    private Repository(String currentDirectory) {
+    private Repository(String currentDirectory) throws IOException {
         this.location = Paths.get(currentDirectory);
         this.fileHasher = new FileHasher(Paths.get(currentDirectory));
+        this.index = RepositoryIndex.createIndex(this.location);
     }
 
-    public static Repository getRepo(String currentDirectory) {
+    public static Repository getRepo(String currentDirectory) throws IOException {
         Path currentDirectoryPath = Paths.get(currentDirectory);
         while (currentDirectoryPath != null) {
             if (Files.isDirectory(Paths.get(currentDirectoryPath.toString(), Constants.VCS_FOLDER))) {
@@ -43,16 +48,16 @@ public class Repository {
 
     public void stage(Path paths[]) {
         for(Path path:paths){
-            while(path.equals(this.location)){
+            while(!path.equals(this.location)){
                 if(Files.isRegularFile(path)){
                     String fileHash = fileHasher.hashFileandSave(path);
-                        this.recordToIndex(path,fileHash,1);
+                    this.recordToIndex(path,fileHash,1);
                 }
-//                else if(Files.isDirectory(path)){
-//                    
-//                }
-                
-                
+                else if(Files.isDirectory(path)){
+                    
+                }else{
+                    System.err.println("file does not exist");
+                }
                 path = path.getParent();
             }
         }
@@ -60,12 +65,24 @@ public class Repository {
     }
     
     public void recordToIndex(Path path , String hash , int type){
-        //save the hash to the index
-        //to be implemented
+        try {
+            String relativeFilePath = path.toString().substring(this.location.toString().length());
+            IndexElement record = this.index.findByPath(relativeFilePath);
+            record.clearModified();
+            record.setLatestStagedHash(hash.substring(0,9));
+            index.flushToStore();
+        } catch (IOException ex) {
+            System.out.println("Could not modify the index");
+        }
     }
 
     public static Repository init(String currentDirectory) {
-        Repository repo = new Repository(currentDirectory);
+        Repository repo = null;
+        try {
+            repo = new Repository(currentDirectory);
+        } catch (IOException ex) {
+            //
+        }
         File vcsRoot = new File(currentDirectory + "\\" + ".vcs");
         boolean success = false;
         if (vcsRoot.mkdir()) {
