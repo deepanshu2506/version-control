@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.WatchService;
 import vcs.*;
 
@@ -13,28 +15,40 @@ import vcs.*;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author Deepanshu Vangani
  */
 public class vcs {
-    
-    public static void main(String[] args){
+
+    public static void main(String[] args) {
         File repoList = new File("D:/vcs/repos.vcs");
         String currentDirectory = System.getProperty("user.dir");
-        if(args[0] != null){
-            if(args[0].equals("init")){
-                Repository repo =  Repository.init(currentDirectory);
-            }
-            if(args[0].equals("add") ){
-                if(args.length > 1){
-                    
-                }else{
-                    System.out.println("Usage , add [file names | . ]");
+        Repository repo = Repository.getRepo(currentDirectory);
+        if (args[0] != null) {
+            if (args[0].equals("init")) {
+                if (repo != null) {
+                    repo = Repository.init(currentDirectory);
+                } else {
+                    System.out.println("A repository already exists.");
                 }
             }
-        }else{
+            if (repo == null) {
+                if (args[0].equals("add")) {
+                    if (args.length > 1) {
+                        Path[] paths = new Path[args.length - 1];
+                        for (int i = 1; i < args.length; i++) {
+                            paths[i - 1] = Paths.get(currentDirectory, args[i]);
+                            repo.stage(paths);
+                        }
+                    } else {
+                        System.out.println("Usage , add [file names | . ]");
+                    }
+                } //other commands here
+            }else{
+                System.out.println("Repository does not exist");
+            }
+        } else {
             System.out.println("please specify a command to execute");
         }
     }

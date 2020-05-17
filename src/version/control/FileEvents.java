@@ -5,6 +5,8 @@
  */
 package version.control;
 
+import index.RepositoryIndex;
+import index.IndexElement;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
