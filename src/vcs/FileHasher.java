@@ -1,5 +1,7 @@
 package vcs;
 
+import Objects.Blob.Blob;
+import Objects.Tree.Tree;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -29,8 +31,7 @@ public class FileHasher {
         this.repoPath = repoPath;
     }
 
-    public String hashFileandSave(Path path) {
-        String fileContents = this.createBlobObject(path);
+    public static String hashFile(String fileContents) {
         String hash = "";
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("sha-1");
@@ -39,18 +40,11 @@ public class FileHasher {
         } catch (NoSuchAlgorithmException ex) {
             System.out.println("Algorithm sha-1 not found");
         }
-        saveHashToDisk(fileContents, hash);
+//        saveHashToDisk(fileContents, hash);
         return hash;
     }
 
-    private String createBlobObject(Path path) {
-        StringBuilder fileContents = this.getFileContents(path);
-        fileContents.insert(0, fileContents.length() + " ");
-        fileContents.insert(0, "blob");
-        return fileContents.toString();
-    }
-
-    private StringBuilder getFileContents(Path path) {
+    public static StringBuilder getFileContents(Path path) {
         StringBuilder fileContents = new StringBuilder();
         BufferedReader fileReader = null;
         try {
@@ -76,8 +70,9 @@ public class FileHasher {
         return fileContents;
     }
 
-    private void saveHashToDisk(String fileContents, String hash) {
-        Path objectsDirectoryPath = this.repoPath.resolve(Constants.VCS_OBJECTS);
+    public static void saveHashToDisk(Blob object, Path repoPath) {
+        Path objectsDirectoryPath = repoPath.resolve(Constants.VCS_OBJECTS);
+        String hash = object.getHash();
         String bucket = hash.substring(0, 2);
         Path bucketPath = objectsDirectoryPath.resolve(bucket);
         if (!Files.isDirectory(bucketPath)) {
@@ -88,7 +83,26 @@ public class FileHasher {
             }
         }
         try (BufferedWriter writer = Files.newBufferedWriter(bucketPath.resolve(hash.substring(2)), Charset.forName("UTF-8"))) {
-            writer.write(fileContents);
+            writer.write(object.toString());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void saveHashToDisk(Tree object, Path repoPath) {
+        Path objectsDirectoryPath = repoPath.resolve(Constants.VCS_OBJECTS);
+        String hash = object.getHash();
+        String bucket = hash.substring(0, 2);
+        Path bucketPath = objectsDirectoryPath.resolve(bucket);
+        if (!Files.isDirectory(bucketPath)) {
+            try {
+                bucketPath = Files.createDirectories(bucketPath);
+            } catch (IOException ex) {
+                System.out.println("could not create bucket");
+            }
+        }
+        try (BufferedWriter writer = Files.newBufferedWriter(bucketPath.resolve(hash.substring(2)), Charset.forName("UTF-8"))) {
+            writer.write(object.toString());
         } catch (IOException ex) {
             ex.printStackTrace();
         }

@@ -1,5 +1,8 @@
 package vcs;
 
+import Objects.Blob.Blob;
+import Objects.Tree.ChildTypes;
+import Objects.Tree.Tree;
 import index.IndexElement;
 import index.RepositoryIndex;
 import java.io.File;
@@ -8,9 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+
 import static vcs.Constants.REGISTER_LOCATION;
 
 /*
@@ -23,14 +24,13 @@ import static vcs.Constants.REGISTER_LOCATION;
  * @author Deepanshu Vangani
  */
 public class Repository {
-    private final FileHasher fileHasher;
+
     private final Path location;
     private boolean init;
     private final RepositoryIndex index;
 
     private Repository(String currentDirectory) throws IOException {
         this.location = Paths.get(currentDirectory);
-        this.fileHasher = new FileHasher(Paths.get(currentDirectory));
         this.index = RepositoryIndex.createIndex(this.location);
     }
 
@@ -47,33 +47,79 @@ public class Repository {
     }
 
     public void stage(Path paths[]) {
-        for(Path path:paths){
-            while(!path.equals(this.location)){
-                if(Files.isRegularFile(path)){
-                    String fileHash = fileHasher.hashFileandSave(path);
-                    this.recordToIndex(path,fileHash,1);
-                }
-                else if(Files.isDirectory(path)){
-                    
-                }else{
-                    System.err.println("file does not exist");
-                }
-                path = path.getParent();
+        for (Path path : paths) {
+            if (Files.isRegularFile(path)) {
+                this.stageFile(path);
+            } else if (Files.isDirectory(path)) {
+                this.stageDirectory(path);
+            } else {
+                System.err.println(path + " does not exist.");
             }
+
         }
 
     }
-    
-    public void recordToIndex(Path path , String hash , int type){
+
+    private void stageFile(Path filePath) {
+
+        Objects.Object childObject = null;
+        ChildTypes childType = null;
+        while (!filePath.equals(this.location)) {
+            if (Files.isRegularFile(filePath)) {
+                Blob fileBlob = Blob.createBlobObject(filePath);
+                FileHasher.saveHashToDisk(fileBlob, this.location);
+                this.recordToIndex(fileBlob);
+                childObject = fileBlob;
+                childType = ChildTypes.BLOB;
+
+            } else if (Files.isDirectory(filePath)) {
+                System.out.println(filePath);
+                String relativeFilePath = filePath.toString().substring(this.location.toString().length());
+                String dirObjectHashStart = this.index.getLatestHash(relativeFilePath);
+                System.out.println(dirObjectHashStart);
+                Tree dirInstance;
+                try {
+                    if (!dirObjectHashStart.equals("null")) {
+                        dirInstance = Tree.createTree(filePath, this.location, dirObjectHashStart);
+                        
+                        dirInstance.addOrReplaceChild(childObject,childType);
+                    } else {
+                        dirInstance = Tree.createTree(filePath,this.location);
+                        dirInstance.addChild(childObject, childType);
+                    }
+                    FileHasher.saveHashToDisk(dirInstance, this.location);
+                    this.recordToIndex(dirInstance);
+                    childObject = dirInstance;
+                    childType = ChildTypes.TREE;
+                } catch (IOException e) {
+                    System.err.println("could not access the objects files");
+                }
+
+            } else {
+                System.err.println("file does not exist");
+            }
+            
+
+            filePath = filePath.getParent();
+        }
+
         try {
-            String relativeFilePath = path.toString().substring(this.location.toString().length());
-            IndexElement record = this.index.findByPath(relativeFilePath);
-            record.clearModified();
-            record.setLatestStagedHash(hash.substring(0,9));
             index.flushToStore();
         } catch (IOException ex) {
             System.out.println("Could not modify the index");
         }
+    }
+
+    private void stageDirectory(Path directoryPath) {
+        
+    }
+
+    public void recordToIndex(Objects.Object obj) {
+        String relativeFilePath = obj.getFilePath().toString().substring(this.location.toString().length());
+        IndexElement record = this.index.findByPath(relativeFilePath);
+        record.clearModified();
+        record.setLatestStagedHash(obj.getHash().substring(0, 9));
+
     }
 
     public static Repository init(String currentDirectory) {
