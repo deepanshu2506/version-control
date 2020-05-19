@@ -65,10 +65,12 @@ public class Repository {
         Objects.Object childObject = null;
         ChildTypes childType = null;
         while (!filePath.equals(this.location)) {
+            System.out.println("fi = " + filePath);
             if (Files.isRegularFile(filePath)) {
                 Blob fileBlob = Blob.createBlobObject(filePath);
                 FileHasher.saveHashToDisk(fileBlob, this.location);
                 this.recordToIndex(fileBlob);
+                System.out.println("f=" + fileBlob);
                 childObject = fileBlob;
                 childType = ChildTypes.BLOB;
 
@@ -80,12 +82,14 @@ public class Repository {
                 Tree dirInstance;
                 try {
                     if (!dirObjectHashStart.equals("null")) {
-                        dirInstance = Tree.createTree(filePath, this.location, dirObjectHashStart);
+                        dirInstance = Tree.createTree(this.location, filePath, dirObjectHashStart);
                         
                         dirInstance.addOrReplaceChild(childObject,childType);
                     } else {
-                        dirInstance = Tree.createTree(filePath,this.location);
+                        dirInstance = Tree.createTree(this.location,filePath);
+                        System.out.println("af = " +dirInstance.getFilePath());
                         dirInstance.addChild(childObject, childType);
+                        
                     }
                     FileHasher.saveHashToDisk(dirInstance, this.location);
                     this.recordToIndex(dirInstance);
@@ -115,11 +119,12 @@ public class Repository {
     }
 
     public void recordToIndex(Objects.Object obj) {
+        System.out.println("p="+obj.getFilePath());
         String relativeFilePath = obj.getFilePath().toString().substring(this.location.toString().length());
         IndexElement record = this.index.findByPath(relativeFilePath);
         record.clearModified();
+        record.stage();
         record.setLatestStagedHash(obj.getHash().substring(0, 9));
-
     }
 
     public static Repository init(String currentDirectory) {

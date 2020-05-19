@@ -45,6 +45,7 @@ public class Tree extends Objects.Object {
     public static Tree createTree(Path repoPath, Path dirPath, String dirObjectHashStart) throws IOException {
         Tree tree = createTree(dirPath, repoPath);
         Path treeObjectPath = tree.getHashFile(dirObjectHashStart);
+        System.out.println("ex = " + treeObjectPath);
         if (treeObjectPath != null) {
             List<String> lines = new ArrayList<>(Files.readAllLines(treeObjectPath, StandardCharsets.UTF_8));
             lines.forEach(line -> {
@@ -95,7 +96,7 @@ public class Tree extends Objects.Object {
                     .filter(path -> {
 //                        System.out.println(path.getFileName());
 //                        System.out.println(dirObjectHashStart.substring(2));
-//                        System.out.println(path.getFileName().toString().startsWith(dirObjectHashStart.substring(2)));
+                        System.out.println(path.getFileName().toString().startsWith(dirObjectHashStart.substring(2)));
                         return path.getFileName().toString().startsWith(dirObjectHashStart.substring(2));
                     })
                     .findAny();

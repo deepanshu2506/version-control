@@ -46,17 +46,21 @@ public class IndexElement {
     }
     public void setAsModified() {
         this.isModified = true;
+        this.refreshTimeStamp();
     }
     public void clearModified() {
         this.isModified = false;
+        this.refreshTimeStamp();
     }
     public Boolean isModified(){
         return this.isModified;
+        
     }
 
 
     public void stage() {
         this.isStaged = true;
+        this.refreshTimeStamp();
     }
 
     public void refreshTimeStamp() {

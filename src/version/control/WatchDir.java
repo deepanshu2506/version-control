@@ -131,7 +131,7 @@ public class WatchDir implements Runnable {
                 System.err.println("WatchKey not recognized");
                 continue;
             }
-            key.pollEvents().forEach((WatchEvent<?> event) -> {
+            key.pollEvents().forEach((event) -> {
                 WatchEvent.Kind kind = event.kind();
                 if (!(kind == OVERFLOW)) {
                     WatchEvent<Path> ev = cast(event);
