@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.DirectoryStream;
 
 import static vcs.Constants.REGISTER_LOCATION;
 
@@ -114,8 +115,26 @@ public class Repository {
         }
     }
 
-    private void stageDirectory(Path directoryPath) {
-        
+    private void stageDirectory(Path directoryPath) throws IOException 
+    {
+        try(DirectoryStream<Path> stream = Files.newDirectoryStream(directoryPath)) 
+        {
+            for (Path entry : stream) 
+            {
+                if (Files.isDirectory(entry)) 
+                {
+                    stageDirectory(entry);
+                }
+                else if(Files.isRegularFile(entry))
+                {
+                    stageFile(entry);
+                }
+            }
+        }
+        catch(IOException e)
+        {
+
+        }    
     }
 
     public void recordToIndex(Objects.Object obj) {
