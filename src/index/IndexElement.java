@@ -56,6 +56,10 @@ public class IndexElement {
         return this.isModified;
         
     }
+    
+    public Boolean isStaged(){
+        return this.isStaged;
+    }
 
 
     public void stage() {
@@ -87,7 +91,13 @@ public class IndexElement {
     public void setLastCommitHash(String lastCommitHash) {
         this.lastCommitHash = lastCommitHash;
     }
-    
+    public void commit(){
+        if (this.isStaged()) {
+            this.setLastCommitHash(this.getLatestStagedHash());
+            this.setLatestStagedHash(null);
+            this.isStaged = false;
+        }
+    }
     @Override
     public String toString() {
         return this.filePath + "," + this.timeStamp + "," + Boolean.toString(this.isDirectory) + "," + Boolean.toString(isStaged) + "," + this.lastCommitHash + "," + this.latestStagedHash +"," + this.isModified;

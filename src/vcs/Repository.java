@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.DirectoryStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static vcs.Constants.REGISTER_LOCATION;
 
@@ -123,9 +125,12 @@ public class Repository {
         }
     }
 
-    private void commit(String message)
-    {
-        this.index.commitChanges(message);
+    public void commit(String message) {
+        try {
+            this.index.commitChanges(message);
+        } catch (IOException ex) {
+            System.out.println("Error in commit");
+        }
     }
 
     public void recordToIndex(Objects.Object obj) {
