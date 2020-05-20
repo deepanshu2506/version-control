@@ -47,6 +47,14 @@ public class vcs {
                         System.out.println("Usage , add [file names | . ]");
                     }
                 }//other commands here
+                if(args[0].equals("commit")) {
+                    if(args.length > 1) {
+                        repo.commit(args[1]);
+                    }
+                    else {
+                        System.out.println("Commit Message Not Provided");
+                    }
+                }
             } else {
                 System.out.println("Repository does not exist");
             }

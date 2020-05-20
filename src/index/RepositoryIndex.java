@@ -19,6 +19,9 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.Date;
+import Objects.Blob.Blob;
+import vcs.FileHasher;
 
 /**
  *
@@ -79,6 +82,36 @@ public class RepositoryIndex {
         }
 
     }
+
+    public void commitChanges(String commitMessage) {
+        for(Map.Entry<String,IndexElement> entry : this.index.entrySet()) {
+            IndexElement indexelement = entry.getValue();
+            if(indexelement.isStaged) { 
+                indexelement.setLastCommitHash(indexelement.getLatestStagedHash());
+                indexelement.setLatestStagedHash(null);
+                indexelement.setisStaged(false);
+            }
+        }
+        this.flushToStore();
+        Path indexFilePath = this.repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH); 
+        Blob indexFileBlob = Blob.createBlobObject(indexFilePath);
+        FileHasher.saveHashToDisk(indexFileBlob, repoPath);
+        Date dateTimeObject = new Date();
+        try {
+            String commitFileContent = indexFileBlob.getHash()+", "+commitMessage+", "+dateTimeObject.toString();
+            String commitFileName = FileHasher.hashFile(commitFileContent);
+            Path commitFilePath = this.repoPath.resolve(Constants.VCS_COMMIT+"\\"+commitFileName)
+            if(Files.createNewFile(commitFilePath)){
+                Files.write(commitFilePath,commitFileContent);
+            } 
+            else {
+                System.err.print("Error");
+            }
+        } catch(IOException e) {
+            System.err.print("Error");
+        }
+    }
+
     private void clearIndex(){
         this.index.clear();
     }

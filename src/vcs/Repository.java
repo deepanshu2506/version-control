@@ -123,6 +123,11 @@ public class Repository {
         }
     }
 
+    private void commit(String message)
+    {
+        this.index.commitChanges(message);
+    }
+
     public void recordToIndex(Objects.Object obj) {
         String relativeFilePath = obj.getFilePath().toString().substring(this.location.toString().length());
         IndexElement record = this.index.findByPath(relativeFilePath);

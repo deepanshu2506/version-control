@@ -14,4 +14,5 @@ public class Constants {
     public static final String VCS_FOLDER = ".vcs";
     public static final String VCS_OBJECTS = VCS_FOLDER + "\\objects";
     public static final String RELATIVE_INDEXFILE_PATH = ".vcs/tracked.vcs";
+    public static final String VCS_COMMIT = VCS_FOLDER + "\\commits";
 }
