@@ -39,8 +39,16 @@ public class RepositoryIndex {
 
     }
 
+    public Path getIndexFilePath() {
+        return this.repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH);
+    }
+
+    public Path getRepoPath() {
+        return repoPath;
+    }
+
     private void populateIndex() throws IOException {
-        List<String> lines = new ArrayList<>(Files.readAllLines(this.repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH), StandardCharsets.UTF_8));
+        List<String> lines = new ArrayList<>(Files.readAllLines(this.getIndexFilePath(), StandardCharsets.UTF_8));
 
         lines.forEach((String line) -> {
             String[] words = line.split(",");
@@ -83,25 +91,33 @@ public class RepositoryIndex {
 
     }
 
-    public void commitChanges(String commitMessage) throws IOException {
+    public void commitStagedHashes(){
         for (IndexElement entry : this.index.values()) {
             entry.commit();
         }
-        this.flushToStore();
-        Path indexFilePath = this.repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH);
-        Blob indexFileBlob = Blob.createBlobObject(indexFilePath);
-        FileHasher.saveHashToDisk(indexFileBlob, repoPath);
-        Date dateTimeObject = new Date();
         try {
-            String commitFileContent = indexFileBlob.getHash() + ", " + commitMessage + ", " + dateTimeObject.toString();
-            String commitFileName = FileHasher.hashFile(commitFileContent);
-            Path commitFilePath = this.repoPath.resolve(Constants.VCS_COMMIT + "\\" + commitFileName);
-            this.flushToStore(commitFilePath, commitFileContent);
-        } catch (IOException e) {
-            System.err.print("Error");
+            this.flushToStore();
+        }catch(IOException e){
+            System.err.println("Could not save index file");
         }
     }
-    
+
+//    public void commitChanges(String commitMessage) throws IOException {
+//
+//        Path indexFilePath = this.repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH);
+//        Blob indexFileBlob = Blob.createBlobObject(indexFilePath);
+//        FileHasher.saveHashToDisk(indexFileBlob, repoPath);
+//        Date dateTimeObject = new Date();
+//        try {
+//            String commitFileContent = indexFileBlob.getHash() + ", " + commitMessage + ", " + dateTimeObject.toString();
+//            String commitFileName = FileHasher.hashFile(commitFileContent);
+//            Path commitFilePath = this.repoPath.resolve(Constants.VCS_COMMIT + "\\" + commitFileName);
+//            this.flushToStore(commitFilePath, commitFileContent);
+//        } catch (IOException e) {
+//            System.err.print("Error");
+//        }
+//    }
+
     private void clearIndex() {
         this.index.clear();
     }
@@ -113,13 +129,7 @@ public class RepositoryIndex {
 
         Files.write(this.repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH), lines, StandardCharsets.UTF_8);
     }
-    
-    public void flushToStore(Path filePath,String contents) throws IOException {
-        if(!Files.exists(filePath)){
-            Files.createFile(filePath);
-        }
-        Files.write(filePath, contents.getBytes());
-    }
+
     
 
     public void refresh() {

@@ -1,5 +1,6 @@
 package vcs;
 
+import Object.commit.Commit;
 import Objects.Blob.Blob;
 import Objects.Tree.ChildTypes;
 import Objects.Tree.Tree;
@@ -126,11 +127,9 @@ public class Repository {
     }
 
     public void commit(String message) {
-        try {
-            this.index.commitChanges(message);
-        } catch (IOException ex) {
-            System.out.println("Error in commit");
-        }
+        
+        Commit commit = Commit.createCommit(index);
+        commit.saveCommit();
     }
 
     public void recordToIndex(Objects.Object obj) {
