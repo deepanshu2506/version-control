@@ -145,6 +145,10 @@ public class Repository {
                 success = new File(currentDirectory + "\\" + ".vcs" + "\\objects").mkdir();
                 success = new File(currentDirectory + "\\" + ".vcs" + "\\commits").mkdir();
                 success = new File(currentDirectory + "\\" + ".vcs" + "\\tracked.vcs").createNewFile();
+                success = new File(currentDirectory + "\\" + ".vcs" + "\\refs").mkdir();
+                success = new File(currentDirectory + "\\" + ".vcs" + "\\refs\\master").createNewFile();
+                success = new File(currentDirectory + "\\" + ".vcs" + "\\refs").mkdir();
+                success = new File(currentDirectory + "\\" + ".vcs" + "\\user").createNewFile();
                 success = repo.registerRepository();
                 if (success) {
                     repo.init = true;
