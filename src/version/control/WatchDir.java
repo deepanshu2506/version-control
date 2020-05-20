@@ -115,7 +115,7 @@ public class WatchDir implements Runnable {
     }
 
     private void processEvents() {
-        FileEvents fileEvents = new FileEvents(this.directory,this.repositoryFileIndex);
+        FileEvents fileEvents = new FileEvents(this.directory, this.repositoryFileIndex);
         for (;;) {
 
             WatchKey key;
@@ -148,11 +148,15 @@ public class WatchDir implements Runnable {
                         }
                     }
 
-                    if (kind == ENTRY_MODIFY  && !fileModified.endsWith("tracked.vcs")) {
-                        try{
-                            fileEvents.modifyEvent(fileModified);
-                        }catch(IOException ex){
-                            System.err.println("IOException at entry modify");
+                    if (kind == ENTRY_MODIFY) {
+                        if (!fileModified.endsWith("tracked.vcs")) {
+                            try {
+                                fileEvents.modifyEvent(fileModified);
+                            } catch (IOException ex) {
+                                System.err.println("IOException at entry modify");
+                            }
+                        }else{
+                            this.repositoryFileIndex.refresh();
                         }
                     }
                     boolean valid = key.reset();

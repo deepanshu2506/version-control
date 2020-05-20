@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -33,10 +35,9 @@ public class RepositoryIndex {
         this.index = new HashMap<>();
 
     }
-
-    public static RepositoryIndex createIndex(Path repoPath) throws IOException {
-        RepositoryIndex index = new RepositoryIndex(repoPath);
-        List<String> lines = new ArrayList<>(Files.readAllLines(index.repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH), StandardCharsets.UTF_8));
+    
+    private void populateIndex() throws IOException{
+        List<String> lines = new ArrayList<>(Files.readAllLines(this.repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH), StandardCharsets.UTF_8));
 
         lines.forEach((String line) -> {
             String[] words = line.split(",");
@@ -46,8 +47,13 @@ public class RepositoryIndex {
                     Boolean.parseBoolean(words[3]),
                     words[4], words[5],
                     Boolean.parseBoolean(words[6]));
-            index.addEntry(indexElement);
+            this.addEntry(indexElement);
         });
+    }
+
+    public static RepositoryIndex createIndex(Path repoPath) throws IOException {
+        RepositoryIndex index = new RepositoryIndex(repoPath);
+        index.populateIndex();
         return index;
     }
 
@@ -73,6 +79,9 @@ public class RepositoryIndex {
         }
 
     }
+    private void clearIndex(){
+        this.index.clear();
+    }
 
     public void flushToStore() throws IOException {
         List<String> lines = this.index.values().stream()
@@ -80,5 +89,15 @@ public class RepositoryIndex {
                 .collect(Collectors.toList());
 
         Files.write(this.repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH), lines, StandardCharsets.UTF_8);
+    }
+
+    public void refresh() {
+        //future implementation calculate the diff of the files and change only the updated entry.
+        try {
+            this.clearIndex();
+            this.populateIndex();
+        } catch (IOException ex) {
+            System.out.println("Could not update index");
+        }
     }
 }
