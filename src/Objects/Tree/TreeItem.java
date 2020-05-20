@@ -23,7 +23,6 @@ public class TreeItem {
     }
     TreeItem(String logEntry){
         String[] items = logEntry.split(",");
-        System.out.println(items[0]);
         this.childType = ChildTypes.get(items[0]);
         this.childHash = items[1];
         this.childName = items[2];

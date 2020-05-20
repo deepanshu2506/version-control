@@ -66,31 +66,25 @@ public class Repository {
         Objects.Object childObject = null;
         ChildTypes childType = null;
         while (!filePath.equals(this.location)) {
-            System.out.println("fi = " + filePath);
             if (Files.isRegularFile(filePath)) {
                 Blob fileBlob = Blob.createBlobObject(filePath);
                 FileHasher.saveHashToDisk(fileBlob, this.location);
                 this.recordToIndex(fileBlob);
-                System.out.println("f=" + fileBlob);
                 childObject = fileBlob;
                 childType = ChildTypes.BLOB;
 
             } else if (Files.isDirectory(filePath)) {
-                System.out.println(filePath);
+
                 String relativeFilePath = filePath.toString().substring(this.location.toString().length());
                 String dirObjectHashStart = this.index.getLatestHash(relativeFilePath);
-                System.out.println(dirObjectHashStart);
                 Tree dirInstance;
                 try {
                     if (!dirObjectHashStart.equals("null")) {
                         dirInstance = Tree.createTree(this.location, filePath, dirObjectHashStart);
-                        
-                        dirInstance.addOrReplaceChild(childObject,childType);
+                        dirInstance.addOrReplaceChild(childObject, childType);
                     } else {
-                        dirInstance = Tree.createTree(this.location,filePath);
-                        System.out.println("af = " +dirInstance.getFilePath());
+                        dirInstance = Tree.createTree(this.location, filePath);
                         dirInstance.addChild(childObject, childType);
-                        
                     }
                     FileHasher.saveHashToDisk(dirInstance, this.location);
                     this.recordToIndex(dirInstance);
@@ -103,7 +97,6 @@ public class Repository {
             } else {
                 System.err.println("file does not exist");
             }
-            
 
             filePath = filePath.getParent();
         }
@@ -115,30 +108,22 @@ public class Repository {
         }
     }
 
-    private void stageDirectory(Path directoryPath) throws IOException 
-    {
-        try(DirectoryStream<Path> stream = Files.newDirectoryStream(directoryPath)) 
-        {
-            for (Path entry : stream) 
-            {
-                if (Files.isDirectory(entry)) 
-                {
+    private void stageDirectory(Path directoryPath) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(directoryPath)) {
+            for (Path entry : stream) {
+                if (Files.isDirectory(entry)) {
                     stageDirectory(entry);
-                }
-                else if(Files.isRegularFile(entry))
-                {
+                } else if (Files.isRegularFile(entry)) {
+                    System.out.println("staging file: " + entry);
                     stageFile(entry);
                 }
             }
+        } catch (IOException e) {
+            System.err.println("error in reading files from path : " + directoryPath);
         }
-        catch(IOException e)
-        {
-
-        }    
     }
 
     public void recordToIndex(Objects.Object obj) {
-        System.out.println("p="+obj.getFilePath());
         String relativeFilePath = obj.getFilePath().toString().substring(this.location.toString().length());
         IndexElement record = this.index.findByPath(relativeFilePath);
         record.clearModified();

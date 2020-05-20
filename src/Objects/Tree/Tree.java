@@ -43,9 +43,8 @@ public class Tree extends Objects.Object {
     }
 
     public static Tree createTree(Path repoPath, Path dirPath, String dirObjectHashStart) throws IOException {
-        Tree tree = createTree(dirPath, repoPath);
+        Tree tree = createTree(repoPath, dirPath);
         Path treeObjectPath = tree.getHashFile(dirObjectHashStart);
-        System.out.println("ex = " + treeObjectPath);
         if (treeObjectPath != null) {
             List<String> lines = new ArrayList<>(Files.readAllLines(treeObjectPath, StandardCharsets.UTF_8));
             lines.forEach(line -> {
@@ -89,14 +88,10 @@ public class Tree extends Objects.Object {
     private Path getHashFile(String dirObjectHashStart) throws IOException {
         Path objectsDirectory = repoPath.resolve(Constants.VCS_OBJECTS);
         Path bucketPath = objectsDirectory.resolve(dirObjectHashStart.substring(0, 2));
-        System.out.println(objectsDirectory);
-
         if (Files.exists(bucketPath) && Files.isDirectory(bucketPath)) {
+
             Optional<Path> treeObjectPathOptional = Files.list(bucketPath)
                     .filter(path -> {
-//                        System.out.println(path.getFileName());
-//                        System.out.println(dirObjectHashStart.substring(2));
-                        System.out.println(path.getFileName().toString().startsWith(dirObjectHashStart.substring(2)));
                         return path.getFileName().toString().startsWith(dirObjectHashStart.substring(2));
                     })
                     .findAny();
