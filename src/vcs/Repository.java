@@ -4,6 +4,7 @@ import Object.commit.Commit;
 import Objects.Blob.Blob;
 import Objects.Tree.ChildTypes;
 import Objects.Tree.Tree;
+import Objects.user.User;
 import index.IndexElement;
 import index.RepositoryIndex;
 import java.io.File;
@@ -127,9 +128,14 @@ public class Repository {
     }
 
     public void commit(String message) {
-        
-        Commit commit = Commit.createCommit(index);
-        commit.saveCommit();
+        if (User.exists()) {
+            Commit commit = Commit.createCommit(index);
+            commit.setCommitMessage(message);
+            commit.saveCommit();
+        }else{
+            System.err.println("Please configure username and email");
+        }
+
     }
 
     public void recordToIndex(Objects.Object obj) {
@@ -157,7 +163,7 @@ public class Repository {
                 success = new File(currentDirectory + "\\" + ".vcs" + "\\refs").mkdir();
                 success = new File(currentDirectory + "\\" + ".vcs" + "\\refs\\master").createNewFile();
                 success = new File(currentDirectory + "\\" + ".vcs" + "\\refs").mkdir();
-                success = new File(currentDirectory + "\\" + ".vcs" + "\\user").createNewFile();
+                success = new File(currentDirectory + "\\" + ".vcs" + "\\user.vcs").createNewFile();
                 success = repo.registerRepository();
                 if (success) {
                     repo.init = true;

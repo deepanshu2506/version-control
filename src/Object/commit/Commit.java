@@ -21,7 +21,6 @@ import vcs.FileHasher;
  * @author Deepanshu Vangani
  */
 public class Commit extends Objects.Object {
-    private User user;
     private Date timeStamp;
     private RepositoryIndex indexSnapshot;
     private String commitMessage;
@@ -55,6 +54,7 @@ public class Commit extends Objects.Object {
     public void saveCommit(){
         Path commitFilePath = this.indexSnapshot.getRepoPath().resolve(vcs.Constants.VCS_COMMIT + "\\" + this.getHash());
         try {
+            System.out.println(this.toString());
             this.flushCommit(commitFilePath, this.toString());
         } catch (IOException ex) {
             System.out.println("could not save commit");
@@ -70,7 +70,18 @@ public class Commit extends Objects.Object {
 
     @Override
     public String toString() {
-        return this.indexFileBlobHash + ","+this.commitMessage+","+this.timeStamp.toString();
+        String lineSeparator = System.lineSeparator();
+        StringBuilder commitData = new StringBuilder();
+        commitData.append("IndexFile :" +this.indexFileBlobHash);
+        commitData.append(lineSeparator);
+        commitData.append("timeStamp:"+ this.timeStamp.toString());
+        commitData.append(lineSeparator);
+        commitData.append("Username:"+User.username );
+        commitData.append(lineSeparator);
+        commitData.append("email:"+User.email);
+        commitData.append(lineSeparator);
+        commitData.append("Message:"+ this.commitMessage);
+        return commitData.toString();
     }
 
 

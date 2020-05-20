@@ -1,4 +1,5 @@
 
+import Objects.user.User;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.WatchService;
+import java.util.Arrays;
 import vcs.*;
 
 /*
@@ -39,21 +41,21 @@ public class vcs {
                         Path[] paths = new Path[args.length - 1];
 
                         for (int i = 1; i < args.length; i++) {
-
                             paths[i - 1] = Paths.get(currentDirectory, args[i]);
                             repo.stage(paths);
                         }
                     } else {
                         System.out.println("Usage , add [file names | . ]");
                     }
-                }//other commands here
-                if(args[0].equals("commit")) {
+                }else if(args[0].equals("commit")) {
                     if(args.length > 1) {
                         repo.commit(args[1]);
                     }
                     else {
                         System.out.println("Commit Message Not Provided");
                     }
+                }else if(args[0].equals("config")){
+                    User.configure(Arrays.copyOfRange(args, 1, args.length));
                 }
             } else {
                 System.out.println("Repository does not exist");
