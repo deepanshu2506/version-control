@@ -162,7 +162,6 @@ public class Repository {
                 success = new File(currentDirectory + "\\" + ".vcs" + "\\tracked.vcs").createNewFile();
                 success = new File(currentDirectory + "\\" + ".vcs" + "\\refs").mkdir();
                 success = new File(currentDirectory + "\\" + ".vcs" + "\\refs\\master").createNewFile();
-                success = new File(currentDirectory + "\\" + ".vcs" + "\\refs").mkdir();
                 success = new File(currentDirectory + "\\" + ".vcs" + "\\user.vcs").createNewFile();
                 success = repo.registerRepository();
                 if (success) {
