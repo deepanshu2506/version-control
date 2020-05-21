@@ -1,4 +1,4 @@
-package Objects.Blob;
+package Objects;
 
 import java.nio.file.Path;
 

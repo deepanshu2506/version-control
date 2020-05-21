@@ -5,8 +5,8 @@
  */
 package Object.commit;
 
-import Objects.Blob.Blob;
-import Objects.user.User;
+import Objects.Blob;
+import Objects.User;
 import index.RepositoryIndex;
 import java.io.IOException;
 import java.nio.file.Files;

@@ -20,7 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.Date;
-import Objects.Blob.Blob;
+import Objects.Blob;
 import java.nio.file.FileAlreadyExistsException;
 import vcs.FileHasher;
 

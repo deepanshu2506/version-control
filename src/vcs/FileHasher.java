@@ -1,6 +1,6 @@
 package vcs;
 
-import Objects.Blob.Blob;
+import Objects.Blob;
 import Objects.Tree.Tree;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
