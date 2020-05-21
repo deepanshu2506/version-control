@@ -51,6 +51,10 @@ public class Repository {
 
     }
 
+    public Path getRepoPath() {
+        return location;
+    }
+    
     public void stage(Path paths[]) {
         for (Path path : paths) {
             if (Files.isRegularFile(path)) {
@@ -134,7 +138,7 @@ public class Repository {
                 Commit commit = Commit.createCommit(index);
                 commit.setCommitMessage(message);
                 commit.saveCommit();
-            }else{
+            } else {
                 System.out.println("No changes to commit");
             }
         } else {
@@ -142,7 +146,7 @@ public class Repository {
         }
 
     }
-
+    
     public void recordToIndex(Objects.Object obj) {
         String relativeFilePath = obj.getFilePath().toString().substring(this.location.toString().length());
         IndexElement record = this.index.findByPath(relativeFilePath);

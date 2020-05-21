@@ -23,27 +23,27 @@ import vcs.FileHasher;
  * @author Deepanshu Vangani
  */
 public class Commit extends Objects.Object {
-
+    
     private Date timeStamp;
     private RepositoryIndex indexSnapshot;
     private String commitMessage;
     private String indexFileBlobHash;
     private String lastCommitHash;
-
+    
     private Commit(Path filePath, RepositoryIndex indexSnapShot) {
         super(filePath);
         this.indexSnapshot = indexSnapShot;
         this.timeStamp = new Date();
     }
-
+    
     public void setCommitMessage(String commitMessage) {
         this.commitMessage = commitMessage;
     }
-
+    
     public void setIndexFileBlobHash(String indexFileBlobHash) {
         this.indexFileBlobHash = indexFileBlobHash;
     }
-
+    
     public static Commit createCommit(RepositoryIndex indexSnapshot) {
         Commit commit = new Commit(indexSnapshot.getIndexFilePath(), indexSnapshot);
         commit.indexSnapshot.commitStagedHashes();
@@ -55,7 +55,7 @@ public class Commit extends Objects.Object {
         commit.setLastCommitHash();
         return commit;
     }
-
+    
     public void saveCommit() {
         Path commitFilePath = this.indexSnapshot.getRepoPath().resolve(vcs.Constants.VCS_COMMIT + "\\" + this.getHash());
         try {
@@ -66,14 +66,14 @@ public class Commit extends Objects.Object {
             System.out.println("could not save commit");
         }
     }
-
+    
     private void flushCommit(Path filePath, String contents) throws IOException {
         if (!Files.exists(filePath)) {
             Files.createFile(filePath);
         }
         Files.write(filePath, contents.getBytes());
     }
-
+    
     @Override
     public String toString() {
         String lineSeparator = System.lineSeparator();
@@ -91,7 +91,7 @@ public class Commit extends Objects.Object {
         commitData.append("lastCommitHash:" + this.lastCommitHash);
         return commitData.toString();
     }
-
+    
     private void setLastCommitHash() {
         try {
             Path branchPath = this.indexSnapshot.getRepoPath().resolve(Constants.MASTER_BRANCH);
@@ -104,7 +104,7 @@ public class Commit extends Objects.Object {
             System.err.println("Could not get previous hash");
         }
     }
-
+    
     private void registerToBranch(String hash) {
         try {
             Path branchPath = this.indexSnapshot.getRepoPath().resolve(Constants.MASTER_BRANCH);
@@ -112,7 +112,32 @@ public class Commit extends Objects.Object {
         } catch (IOException ex) {
             System.out.println(Paths.get(Constants.MASTER_BRANCH));
         }
-
+        
     }
-
+    
+    public static void logCommits(Path repoPath) {
+        Path branchPath = repoPath.resolve(Constants.MASTER_BRANCH);
+        try {
+            String latestCommitHash = Files.readAllLines(branchPath).get(0);
+            printCommits(latestCommitHash, repoPath);
+        } catch (IOException e) {
+            System.err.println("Could not read from master branch");
+        } catch (IndexOutOfBoundsException e) {
+            System.err.println("No commits yet");
+        }
+    }
+    
+    private static void printCommits(String commitHash, Path repoPath) {
+        Path commitsDirectory = repoPath.resolve(Constants.VCS_COMMIT);
+        Path commitFilePath = commitsDirectory.resolve(commitHash);
+        String commmitContents = FileHasher.getFileContents(commitFilePath).toString();
+        System.out.println(commmitContents);
+        System.out.println("-------------------------------------------");
+        String lineSeparator = System.lineSeparator();
+        String previousCommit = commmitContents.split(lineSeparator)[Constants.PREVIOUS_COMMIT_HASH_LINE].split(":")[1];
+        if (!previousCommit.equals("null")) {
+            printCommits(previousCommit, repoPath);
+        }
+        
+    }
 }

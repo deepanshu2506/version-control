@@ -1,4 +1,5 @@
 
+import Object.commit.Commit;
 import Objects.user.User;
 import java.io.File;
 import java.io.FileWriter;
@@ -47,15 +48,16 @@ public class vcs {
                     } else {
                         System.out.println("Usage , add [file names | . ]");
                     }
-                }else if(args[0].equals("commit")) {
-                    if(args.length > 1) {
+                } else if (args[0].equals("commit")) {
+                    if (args.length > 1) {
                         repo.commit(args[1]);
-                    }
-                    else {
+                    } else {
                         System.out.println("Commit Message Not Provided");
                     }
-                }else if(args[0].equals("config")){
+                } else if (args[0].equals("config")) {
                     User.configure(Arrays.copyOfRange(args, 1, args.length));
+                } else if (args[0].equals("log")) {
+                    Commit.logCommits(repo.getRepoPath());
                 }
             } else {
                 System.out.println("Repository does not exist");
@@ -64,7 +66,4 @@ public class vcs {
             System.out.println("please specify a command to execute");
         }
     }
-
 }
-
-

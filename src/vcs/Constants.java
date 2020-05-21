@@ -18,4 +18,5 @@ public class Constants {
     public static final String GLOBAL_USER_CONFIG = "D:\\versioncontrol\\user.vcs";
     public static final String BRANCHES_DIR = VCS_FOLDER + "\\refs";
     public static final String MASTER_BRANCH = BRANCHES_DIR + "\\master";
+    public static final int PREVIOUS_COMMIT_HASH_LINE = 5;
 }
