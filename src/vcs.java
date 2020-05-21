@@ -1,6 +1,6 @@
 
 import Object.commit.Commit;
-import Objects.user.User;
+import Objects.User;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

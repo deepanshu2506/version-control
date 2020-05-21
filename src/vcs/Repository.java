@@ -1,10 +1,10 @@
 package vcs;
 
 import Object.commit.Commit;
-import Objects.Blob.Blob;
+import Objects.Blob;
 import Objects.Tree.ChildTypes;
 import Objects.Tree.Tree;
-import Objects.user.User;
+import Objects.User;
 import index.IndexElement;
 import index.RepositoryIndex;
 import java.io.File;
@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.DirectoryStream;
+import java.nio.file.StandardOpenOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,7 +55,7 @@ public class Repository {
     public Path getRepoPath() {
         return location;
     }
-    
+
     public void stage(Path paths[]) {
         for (Path path : paths) {
             if (Files.isRegularFile(path)) {
@@ -146,7 +147,7 @@ public class Repository {
         }
 
     }
-    
+
     public void recordToIndex(Objects.Object obj) {
         String relativeFilePath = obj.getFilePath().toString().substring(this.location.toString().length());
         IndexElement record = this.index.findByPath(relativeFilePath);
@@ -157,11 +158,6 @@ public class Repository {
 
     public static Repository init(String currentDirectory) {
         Repository repo = null;
-        try {
-            repo = new Repository(currentDirectory);
-        } catch (IOException ex) {
-            //
-        }
         File vcsRoot = new File(currentDirectory + "\\" + ".vcs");
         boolean success = false;
         if (vcsRoot.mkdir()) {
@@ -172,9 +168,11 @@ public class Repository {
                 success = new File(currentDirectory + "\\" + ".vcs" + "\\refs").mkdir();
                 success = new File(currentDirectory + "\\" + ".vcs" + "\\refs\\master").createNewFile();
                 success = new File(currentDirectory + "\\" + ".vcs" + "\\user.vcs").createNewFile();
+                repo = new Repository(currentDirectory);
                 success = repo.registerRepository();
                 if (success) {
                     repo.init = true;
+                   
                     return repo;
                 } else {
                     repo.cleanup();
@@ -192,12 +190,12 @@ public class Repository {
     private boolean registerRepository() throws IOException {
         FileWriter registerWriter = null;
         try {
-            registerWriter = new FileWriter(REGISTER_LOCATION, true);
-
-            registerWriter.write(this.location + System.lineSeparator());
-            registerWriter.close();
+            Path registerLocation = Paths.get(REGISTER_LOCATION);
+            System.out.println(registerLocation);
+            Files.write(registerLocation, (System.lineSeparator()+this.location ).getBytes(), StandardOpenOption.APPEND);
             return true;
         } catch (IOException e) {
+            e.printStackTrace();
             return false;
         } finally {
             if (registerWriter != null) {

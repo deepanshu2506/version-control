@@ -10,6 +10,7 @@ package vcs;
  * @author Deepanshu Vangani
  */
 public class Constants {
+
     public static final String REGISTER_LOCATION = "D:\\versionControl\\repos.vcs";
     public static final String VCS_FOLDER = ".vcs";
     public static final String VCS_OBJECTS = VCS_FOLDER + "\\objects";

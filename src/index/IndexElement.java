@@ -12,7 +12,6 @@ import java.util.Date;
  * @author Deepanshu Vangani
  */
 public class IndexElement {
-
     private String filePath;
     private Boolean isDirectory;
     private Long timeStamp;
