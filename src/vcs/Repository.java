@@ -146,6 +146,11 @@ public class Repository {
         }
 
     }
+
+    public void status() {
+        index.showModifiedFiles();
+        index.showStagedFiles();
+    }
     
     public void recordToIndex(Objects.Object obj) {
         String relativeFilePath = obj.getFilePath().toString().substring(this.location.toString().length());

@@ -20,6 +20,7 @@ public class IndexElement {
     private boolean isModified;
     private String latestStagedHash;
     private String lastCommitHash;
+    private String isDeleted;
 
     public IndexElement(String filePath) {
         this.filePath = filePath;
@@ -53,12 +54,15 @@ public class IndexElement {
         this.refreshTimeStamp();
     }
     public Boolean isModified(){
-        return this.isModified;
-        
+        return this.isModified; 
     }
     
     public Boolean isStaged(){
         return this.isStaged;
+    }
+
+    public Boolean isDeleted() {
+        return this.isDeleted;
     }
 
 

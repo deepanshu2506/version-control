@@ -58,6 +58,8 @@ public class vcs {
                     User.configure(Arrays.copyOfRange(args, 1, args.length));
                 } else if (args[0].equals("log")) {
                     Commit.logCommits(repo.getRepoPath());
+                } else if (args[0].equals("status")) {
+                    repo.status();
                 }
             } else {
                 System.out.println("Repository does not exist");

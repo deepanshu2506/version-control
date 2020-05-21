@@ -131,4 +131,30 @@ public class RepositoryIndex {
             System.out.println("Could not update index");
         }
     }
+
+    public void showStagedFiles() {
+        boolean flag = false;
+        for(IndexElement element : this.index.values()) {
+            if(element.isStaged()) {
+                System.out.println("staged: " + element.getFilePath());
+                flag = true;
+            }
+        }
+        if(!flag) {
+            System.out.println("No Files Staged");
+        }
+    }
+
+    public void showModifiedFiles() {
+        for(IndexElement element : this.index.values()) {
+            if(element.isModified()) {
+                if(element.isDeleted()) {
+                    System.out.println("deleted: " + element.getFilePath());
+                }
+                else {
+                    System.out.println("modified: " + element.getFilePath());
+                }
+            }
+        }
+    }
 }
