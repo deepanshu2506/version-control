@@ -82,7 +82,6 @@ public class RepositoryIndex {
         if (element.getLastCommitHash() == null && element.getLatestStagedHash() == null) {
             return null;
         }
-
         if (element.getLatestStagedHash() != null) {
             return element.getLatestStagedHash();
         } else {
@@ -91,32 +90,25 @@ public class RepositoryIndex {
 
     }
 
-    public void commitStagedHashes(){
+    public void commitStagedHashes() {
         for (IndexElement entry : this.index.values()) {
             entry.commit();
         }
         try {
             this.flushToStore();
-        }catch(IOException e){
+        } catch (IOException e) {
             System.err.println("Could not save index file");
         }
     }
 
-//    public void commitChanges(String commitMessage) throws IOException {
-//
-//        Path indexFilePath = this.repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH);
-//        Blob indexFileBlob = Blob.createBlobObject(indexFilePath);
-//        FileHasher.saveHashToDisk(indexFileBlob, repoPath);
-//        Date dateTimeObject = new Date();
-//        try {
-//            String commitFileContent = indexFileBlob.getHash() + ", " + commitMessage + ", " + dateTimeObject.toString();
-//            String commitFileName = FileHasher.hashFile(commitFileContent);
-//            Path commitFilePath = this.repoPath.resolve(Constants.VCS_COMMIT + "\\" + commitFileName);
-//            this.flushToStore(commitFilePath, commitFileContent);
-//        } catch (IOException e) {
-//            System.err.print("Error");
-//        }
-//    }
+    public boolean hasStagedChanges() {
+        for (IndexElement element : this.index.values()) {
+            if (element.isStaged()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private void clearIndex() {
         this.index.clear();
@@ -129,8 +121,6 @@ public class RepositoryIndex {
 
         Files.write(this.repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH), lines, StandardCharsets.UTF_8);
     }
-
-    
 
     public void refresh() {
         //future implementation calculate the diff of the files and change only the updated entry.

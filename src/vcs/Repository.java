@@ -129,10 +129,15 @@ public class Repository {
 
     public void commit(String message) {
         if (User.exists()) {
-            Commit commit = Commit.createCommit(index);
-            commit.setCommitMessage(message);
-            commit.saveCommit();
-        }else{
+            if (this.index.hasStagedChanges()) {
+
+                Commit commit = Commit.createCommit(index);
+                commit.setCommitMessage(message);
+                commit.saveCommit();
+            }else{
+                System.out.println("No changes to commit");
+            }
+        } else {
             System.err.println("Please configure username and email");
         }
 
