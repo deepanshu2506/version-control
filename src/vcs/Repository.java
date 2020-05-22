@@ -2,6 +2,7 @@ package vcs;
 
 import Object.commit.Commit;
 import Objects.Blob;
+import Objects.Branch;
 import Objects.Tree.ChildTypes;
 import Objects.Tree.Tree;
 import Objects.User;
@@ -34,10 +35,12 @@ public class Repository {
     private final Path location;
     private boolean init;
     private final RepositoryIndex index;
+    private Branch currentBranch;
 
     private Repository(String currentDirectory) throws IOException {
         this.location = Paths.get(currentDirectory);
         this.index = RepositoryIndex.createIndex(this.location);
+        this.currentBranch = Branch.getCurrentBranch(this.location);
     }
 
     public static Repository getRepo(String currentDirectory) throws IOException {
@@ -136,7 +139,7 @@ public class Repository {
         if (User.exists()) {
             if (this.index.hasStagedChanges()) {
 
-                Commit commit = Commit.createCommit(index);
+                Commit commit = Commit.createCommit(this.currentBranch , index);
                 commit.setCommitMessage(message);
                 commit.saveCommit();
             } else {
@@ -145,7 +148,6 @@ public class Repository {
         } else {
             System.err.println("Please configure username and email");
         }
-
     }
 
     public void recordToIndex(Objects.Object obj) {
@@ -162,17 +164,17 @@ public class Repository {
         boolean success = false;
         if (vcsRoot.mkdir()) {
             try {
-                success = new File(currentDirectory + "\\" + ".vcs" + "\\objects").mkdir();
-                success = new File(currentDirectory + "\\" + ".vcs" + "\\commits").mkdir();
-                success = new File(currentDirectory + "\\" + ".vcs" + "\\tracked.vcs").createNewFile();
-                success = new File(currentDirectory + "\\" + ".vcs" + "\\refs").mkdir();
-                success = new File(currentDirectory + "\\" + ".vcs" + "\\refs\\master").createNewFile();
-                success = new File(currentDirectory + "\\" + ".vcs" + "\\user.vcs").createNewFile();
+                success = success && new File(currentDirectory + "\\" + ".vcs" + "\\objects").mkdir();
+                success = success && new File(currentDirectory + "\\" + ".vcs" + "\\commits").mkdir();
+                success = success && new File(currentDirectory + "\\" + ".vcs" + "\\tracked.vcs").createNewFile();
+                success = success && new File(currentDirectory + "\\" + ".vcs" + "\\refs").mkdir();
+                success = success && new File(currentDirectory + "\\" + ".vcs" + "\\refs\\master").createNewFile();
+                success = success && new File(currentDirectory + "\\" + ".vcs" + "\\config.vcs").createNewFile();
                 repo = new Repository(currentDirectory);
                 success = repo.registerRepository();
                 if (success) {
                     repo.init = true;
-                   
+                    repo.setUpConfig();
                     return repo;
                 } else {
                     repo.cleanup();
@@ -208,7 +210,12 @@ public class Repository {
     private void cleanup() {
         //revert any changes made
     }
-
+    
+    private void setUpConfig() throws IOException{
+        String config = "branch:master"+System.lineSeparator();
+        Files.write(this.location.resolve(".vcs" + "\\config.vcs"), config.getBytes());
+    }
+    
     @Override
     public String toString() {
         return this.location.toString();

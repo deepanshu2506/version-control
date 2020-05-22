@@ -1,5 +1,6 @@
 
 import Object.commit.Commit;
+import Objects.Branch;
 import Objects.User;
 import java.io.File;
 import java.io.FileWriter;
@@ -58,6 +59,9 @@ public class vcs {
                     User.configure(Arrays.copyOfRange(args, 1, args.length));
                 } else if (args[0].equals("log")) {
                     Commit.logCommits(repo.getRepoPath());
+                } else if(args[0].equals("branch")){
+                    System.out.println("Branches in repository are:");
+                    Branch.displayAllBranches(repo.getRepoPath());
                 }
             } else {
                 System.out.println("Repository does not exist");
