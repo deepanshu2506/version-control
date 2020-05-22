@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import vcs.Constants;
@@ -42,10 +43,20 @@ public class Branch {
         return name;
     }
 
+    private void setCommitId(String commitHash) {
+        this.commitId = commitHash;
+    }
+
     private static String getCurrentBranchName(Path repoPath) throws IOException {
         Path configFile = repoPath.resolve(Constants.CONFIG_FILE);
         String currentBranchName = Files.readAllLines(configFile).get(Constants.BRANCH_LINE_IN_CONFIG).split(":")[1];
         return currentBranchName;
+    }
+
+    private void setCurrentBranch() throws IOException {
+        Path configFile = this.branchFilePath.resolve("../../../").normalize().resolve(Constants.CONFIG_FILE);
+        String config = "branch:"+this.name + System.lineSeparator();
+        Files.write(configFile, config.getBytes());
     }
 
     public static Branch getCurrentBranch(Path repoPath) {
@@ -79,15 +90,56 @@ public class Branch {
                         System.out.println(branchName);
                     }
                 });
-
     }
 
     public void registerToBranch(Commit newCommit) {
         try {
-            Files.write(this.branchFilePath, newCommit.getHash().getBytes());
+            String commitHash = newCommit.getHash();
+            Files.write(this.branchFilePath, commitHash.getBytes());
+            this.setCommitId(commitHash);
         } catch (IOException ex) {
             System.out.println(Paths.get(Constants.MASTER_BRANCH));
         }
     }
 
+    public Branch switchBranch(String branchName) throws IOException {
+        Branch newBranch;
+        if (this.branchExists(branchName)) {
+            Path branchFilePath = this.branchFilePath.getParent().resolve(branchName);
+            String commitId = null;
+            try {
+                commitId = Files.readAllLines(branchFilePath).get(0);
+            } catch (IndexOutOfBoundsException e) {
+            }
+            newBranch = new Branch(branchName, branchFilePath, commitId);
+        } else {
+            newBranch = createNewBranch(branchName, this.branchFilePath.getParent(), this.commitId);
+        }
+        newBranch.setCurrentBranch();
+        return newBranch;
+    }
+
+    private boolean branchExists(String branchName) throws IOException {
+        Path branchesDir = this.branchFilePath.getParent();
+        try {
+            Files.walk(branchesDir).filter(branch -> branch.getFileName().toString().equals(branchName)).findAny().get();
+            return true;
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+    }
+
+    private static Branch createNewBranch(String branchName, Path branchesDirectory, String commitId) throws IOException {
+        Path branchFilePath = branchesDirectory.resolve(branchName);
+        Files.createFile(branchFilePath);
+        Files.write(branchFilePath, commitId.getBytes());
+        return new Branch(branchName, branchFilePath, commitId);
+
+    }
+
+    public void restoreBranchState() {
+        /**
+         * load the commit info and restore the state of the directory.
+         */
+    }
 }

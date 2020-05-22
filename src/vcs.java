@@ -67,6 +67,9 @@ public class vcs {
                 } else if (args[0].equals("status")) {
                     repo.status();
                 }
+                else if(args[0].equals("checkout")){
+                    repo.switchBranch(args[1]);
+                }
             } else {
                 System.out.println("Repository does not exist");
             }

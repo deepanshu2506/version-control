@@ -16,8 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.DirectoryStream;
 import java.nio.file.StandardOpenOption;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static vcs.Constants.REGISTER_LOCATION;
 
@@ -57,6 +55,19 @@ public class Repository {
 
     public Path getRepoPath() {
         return location;
+    }
+
+    private void setCurrentBranch(Branch currentBranch) {
+        this.currentBranch = currentBranch;
+        currentBranch.restoreBranchState();
+    }
+
+    public void recordToIndex(Objects.Object obj) {
+        String relativeFilePath = obj.getFilePath().toString().substring(this.location.toString().length());
+        IndexElement record = this.index.findByPath(relativeFilePath);
+        record.clearModified();
+        record.stage();
+        record.setLatestStagedHash(obj.getHash().substring(0, 9));
     }
 
     public void stage(Path paths[]) {
@@ -157,12 +168,14 @@ public class Repository {
         index.showStagedFiles();
     }
 
-    public void recordToIndex(Objects.Object obj) {
-        String relativeFilePath = obj.getFilePath().toString().substring(this.location.toString().length());
-        IndexElement record = this.index.findByPath(relativeFilePath);
-        record.clearModified();
-        record.stage();
-        record.setLatestStagedHash(obj.getHash().substring(0, 9));
+    public void switchBranch(String branchName) {
+        try {
+            Branch currentBranch = this.currentBranch.switchBranch(branchName);
+            this.setCurrentBranch(currentBranch);
+            System.out.println("switched to branch " + branchName);
+        } catch (IOException e) {
+            System.out.println("could not switch to branch");
+        }
     }
 
     public static Repository init(String currentDirectory) {
