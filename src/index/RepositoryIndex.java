@@ -73,6 +73,10 @@ public class RepositoryIndex {
         this.index.put(item.getFilePath(), item);
     }
 
+    public void removeEntry(String filePath) {
+        this.index.remove(filePath);
+    }
+
     public IndexElement findByPath(String relativePath) {
         IndexElement foundElement = index.get(relativePath);
         return foundElement;
@@ -106,6 +110,17 @@ public class RepositoryIndex {
         for (IndexElement element : this.index.values()) {
             if (element.isStaged()) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasUnstagedDeletedChanges() {
+        for(IndexElement element : this.index.values()) {
+            if(element.isDeleted()) {
+                if(!element.isStaged()) {
+                    return true;
+                }
             }
         }
         return false;

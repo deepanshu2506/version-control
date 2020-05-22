@@ -72,16 +72,25 @@ public class Repository {
 
     public void stage(Path paths[]) {
         for (Path path : paths) {
-            if (Files.isRegularFile(path)) {
-                this.stageFile(path);
-            } else if (Files.isDirectory(path)) {
-                this.stageDirectory(path);
-            } else {
-                System.err.println(path + " does not exist.");
+            String relativeFilePath = path.toString().substring(this.location.toString().length());
+            if(this.index.findByPath(relativeFilePath).isDeleted()) {
+                this.index.removeEntry(relativeFilePath);
             }
-
+            else {
+                if (Files.isRegularFile(path)) {
+                    this.stageFile(path);
+                } else if (Files.isDirectory(path)) {
+                    this.stageDirectory(path);
+                } else {
+                    System.err.println(path + " does not exist.");
+                }
+            }
         }
-
+        try {
+            index.flushToStore();
+        } catch (IOException ex) {
+            System.out.println("Could not modify the index");
+        }
     }
 
     private void stageFile(Path filePath) {
@@ -120,14 +129,7 @@ public class Repository {
             } else {
                 System.err.println("file does not exist");
             }
-
             filePath = filePath.getParent();
-        }
-
-        try {
-            index.flushToStore();
-        } catch (IOException ex) {
-            System.out.println("Could not modify the index");
         }
     }
 
@@ -148,13 +150,18 @@ public class Repository {
 
     public void commit(String message) {
         if (User.exists()) {
-            if (this.index.hasStagedChanges()) {
-
-                Commit commit = Commit.createCommit(this.currentBranch, index);
-                commit.setCommitMessage(message);
-                commit.saveCommit();
-            } else {
-                System.out.println("No changes to commit");
+            if(this.index.hasUnstagedDeletedChanges()) {
+                System.out.println("You have Deleted Changes which are not staged. Cannot Commit Changes");
+                System.out.println("Please Stage Deleted Files to Complete Commit");
+            }
+            else {
+                if (this.index.hasStagedChanges()) {
+                    Commit commit = Commit.createCommit(this.currentBranch, index);
+                    commit.setCommitMessage(message);
+                    commit.saveCommit();
+                } else {
+                    System.out.println("No changes to commit");
+                }
             }
         } else {
             System.err.println("Please configure username and email");
