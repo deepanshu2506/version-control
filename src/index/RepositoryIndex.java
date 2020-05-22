@@ -57,7 +57,8 @@ public class RepositoryIndex {
                     Boolean.parseBoolean(words[2]),
                     Boolean.parseBoolean(words[3]),
                     words[4], words[5],
-                    Boolean.parseBoolean(words[6]));
+                    Boolean.parseBoolean(words[6]),
+                    Boolean.parseBoolean(words[7]));
             this.addEntry(indexElement);
         });
     }
@@ -148,7 +149,7 @@ public class RepositoryIndex {
     public void showModifiedFiles() {
         for (IndexElement element : this.index.values()) {
             if (element.isModified()) {
-                if (element.isDeleted().equals("true")) {
+                if (element.isDeleted()) {
                     System.out.println("deleted: " + element.getFilePath());
                 } else {
                     System.out.println("modified: " + element.getFilePath());

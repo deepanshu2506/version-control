@@ -20,7 +20,7 @@ public class IndexElement {
     private boolean isModified;
     private String latestStagedHash;
     private String lastCommitHash;
-    private String isDeleted;
+    private Boolean isDeleted;
 
     public IndexElement(String filePath) {
         this.filePath = filePath;
@@ -30,15 +30,17 @@ public class IndexElement {
         this.latestStagedHash = "null";
         this.lastCommitHash = "null";
         this.isModified = true;
+        this.isDeleted = false;
     }
 
-    public IndexElement createExistingElement(Long timeStamp, boolean isDirectory, boolean isStaged, String latestCommitHash, String latestStagedHash, Boolean isModified) {
+    public IndexElement createExistingElement(Long timeStamp, boolean isDirectory, boolean isStaged, String latestCommitHash, String latestStagedHash, Boolean isModified, Boolean isDeleted) {
         this.timeStamp = timeStamp;
         this.isDirectory = isDirectory;
         this.isStaged = isStaged;
         this.lastCommitHash = lastCommitHash != "null" ? latestCommitHash : null;
         this.latestStagedHash = latestStagedHash != "null" ? latestStagedHash : null;
         this.isModified = isModified;
+        this.isDeleted = isDeleted;
         return this;
     }
 
@@ -64,7 +66,7 @@ public class IndexElement {
         return this.isStaged;
     }
 
-    public String isDeleted() {
+    public boolean isDeleted() {
         return this.isDeleted;
     }
 
@@ -107,7 +109,7 @@ public class IndexElement {
 
     @Override
     public String toString() {
-        return this.filePath + "," + this.timeStamp + "," + Boolean.toString(this.isDirectory) + "," + Boolean.toString(isStaged) + "," + this.lastCommitHash + "," + this.latestStagedHash + "," + this.isModified;
+        return this.filePath + "," + this.timeStamp + "," + this.isDirectory + "," + isStaged + "," + this.lastCommitHash + "," + this.latestStagedHash + "," + this.isModified +","+ this.isDeleted;
     }
 
 }

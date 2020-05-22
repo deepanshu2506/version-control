@@ -66,7 +66,6 @@ public class vcs {
 
                 } else if (args[0].equals("status")) {
                     repo.status();
-
                 }
             } else {
                 System.out.println("Repository does not exist");

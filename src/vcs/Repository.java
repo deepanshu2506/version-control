@@ -151,7 +151,9 @@ public class Repository {
     }
 
     public void status() {
+        System.out.println("\nunstaged changes: ");
         index.showModifiedFiles();
+        System.out.println("\nStaged changes: ");
         index.showStagedFiles();
     }
 
