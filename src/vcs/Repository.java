@@ -139,7 +139,7 @@ public class Repository {
         if (User.exists()) {
             if (this.index.hasStagedChanges()) {
 
-                Commit commit = Commit.createCommit(this.currentBranch , index);
+                Commit commit = Commit.createCommit(this.currentBranch, index);
                 commit.setCommitMessage(message);
                 commit.saveCommit();
             } else {
@@ -148,6 +148,11 @@ public class Repository {
         } else {
             System.err.println("Please configure username and email");
         }
+    }
+
+    public void status() {
+        index.showModifiedFiles();
+        index.showStagedFiles();
     }
 
     public void recordToIndex(Objects.Object obj) {
@@ -194,7 +199,7 @@ public class Repository {
         try {
             Path registerLocation = Paths.get(REGISTER_LOCATION);
             System.out.println(registerLocation);
-            Files.write(registerLocation, (System.lineSeparator()+this.location ).getBytes(), StandardOpenOption.APPEND);
+            Files.write(registerLocation, (System.lineSeparator() + this.location).getBytes(), StandardOpenOption.APPEND);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -210,12 +215,12 @@ public class Repository {
     private void cleanup() {
         //revert any changes made
     }
-    
-    private void setUpConfig() throws IOException{
-        String config = "branch:master"+System.lineSeparator();
+
+    private void setUpConfig() throws IOException {
+        String config = "branch:master" + System.lineSeparator();
         Files.write(this.location.resolve(".vcs" + "\\config.vcs"), config.getBytes());
     }
-    
+
     @Override
     public String toString() {
         return this.location.toString();

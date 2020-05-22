@@ -12,6 +12,7 @@ import java.util.Date;
  * @author Deepanshu Vangani
  */
 public class IndexElement {
+
     private String filePath;
     private Boolean isDirectory;
     private Long timeStamp;
@@ -19,6 +20,7 @@ public class IndexElement {
     private boolean isModified;
     private String latestStagedHash;
     private String lastCommitHash;
+    private String isDeleted;
 
     public IndexElement(String filePath) {
         this.filePath = filePath;
@@ -30,7 +32,7 @@ public class IndexElement {
         this.isModified = true;
     }
 
-    public IndexElement createExistingElement(Long timeStamp, boolean isDirectory, boolean isStaged, String latestCommitHash, String latestStagedHash,Boolean isModified) {
+    public IndexElement createExistingElement(Long timeStamp, boolean isDirectory, boolean isStaged, String latestCommitHash, String latestStagedHash, Boolean isModified) {
         this.timeStamp = timeStamp;
         this.isDirectory = isDirectory;
         this.isStaged = isStaged;
@@ -43,23 +45,28 @@ public class IndexElement {
     public void setAsDirectory() {
         this.isDirectory = true;
     }
+
     public void setAsModified() {
         this.isModified = true;
         this.refreshTimeStamp();
     }
+
     public void clearModified() {
         this.isModified = false;
         this.refreshTimeStamp();
     }
-    public Boolean isModified(){
+
+    public Boolean isModified() {
         return this.isModified;
-        
     }
-    
-    public Boolean isStaged(){
+
+    public Boolean isStaged() {
         return this.isStaged;
     }
 
+    public String isDeleted() {
+        return this.isDeleted;
+    }
 
     public void stage() {
         this.isStaged = true;
@@ -73,7 +80,6 @@ public class IndexElement {
     public String getFilePath() {
         return filePath;
     }
-    
 
     public String getLatestStagedHash() {
         return latestStagedHash;
@@ -90,16 +96,18 @@ public class IndexElement {
     public void setLastCommitHash(String lastCommitHash) {
         this.lastCommitHash = lastCommitHash;
     }
-    public void commit(){
+
+    public void commit() {
         if (this.isStaged()) {
             this.setLastCommitHash(this.getLatestStagedHash());
             this.setLatestStagedHash(null);
             this.isStaged = false;
         }
     }
+
     @Override
     public String toString() {
-        return this.filePath + "," + this.timeStamp + "," + Boolean.toString(this.isDirectory) + "," + Boolean.toString(isStaged) + "," + this.lastCommitHash + "," + this.latestStagedHash +"," + this.isModified;
+        return this.filePath + "," + this.timeStamp + "," + Boolean.toString(this.isDirectory) + "," + Boolean.toString(isStaged) + "," + this.lastCommitHash + "," + this.latestStagedHash + "," + this.isModified;
     }
 
 }
