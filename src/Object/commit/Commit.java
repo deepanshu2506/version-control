@@ -98,18 +98,6 @@ public class Commit extends Objects.Object {
     }
 
     private void setLastCommitHash() {
-//        try {
-//            Path branchPath = this.indexSnapshot.getRepoPath().resolve(Constants.MASTER_BRANCH);
-//            Path branchPath = this.branch.getBranchFilePath();
-//            try {
-//                this.lastCommitHash = Files.readAllLines(branchPath).get(0);
-//            } catch (IndexOutOfBoundsException e) {
-//                this.lastCommitHash = null;
-//            }
-//            
-//        } catch (IOException ex) {
-//            System.err.println("Could not get previous hash");
-//        }
         this.lastCommitHash = this.branch.getCommitId();
     }
 

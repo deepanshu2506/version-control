@@ -149,7 +149,7 @@ public class WatchDir implements Runnable {
                     }
 
                     if (kind == ENTRY_MODIFY) {
-                        if (!fileModified.endsWith("tracked.vcs")) {
+                        if (!fileModified.toString().substring(this.directory.toString().length()).startsWith("\\.vcs")) {
                             try {
                                 fileEvents.modifyEvent(fileModified);
                             } catch (IOException ex) {
