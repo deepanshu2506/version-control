@@ -26,6 +26,9 @@ public class Object {
     public Object(Path filePath) {
         this.filePath = filePath;
     }
+    
+    public Object(){
+    }
 
     /**
      *

@@ -24,5 +24,7 @@ public class Constants {
     
     public static final int PREVIOUS_COMMIT_HASH_LINE = 5;
     public static final int BRANCH_LINE_IN_CONFIG = 0;
+    public static final int INDEX_HASH_IN_COMMIT = 0;
+    public static final int BLOB_FIELDS = 3;
     
 }

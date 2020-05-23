@@ -8,13 +8,20 @@ import java.nio.file.Path;
  * and open the template in the editor.
  */
 import vcs.FileHasher;
+import vcs.Constants;
 import Objects.Object;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.util.Optional;
+
 /**
  *
  * @author Deepanshu Vangani
  */
+public class Blob extends Objects.Object {
 
-public class Blob extends Objects.Object{
     private String contents;
 
     private Blob(Path filePath) {
@@ -26,24 +33,58 @@ public class Blob extends Objects.Object{
     }
 
     public void setContents(String contents) {
-         
+
         this.contents = contents;
         StringBuilder fileContent = new StringBuilder();
-        fileContent.insert(0, this.contents.length()+" ");
+        fileContent.insert(0, this.contents.length() + " ");
         fileContent.insert(0, "blob ");
-        this.hash= FileHasher.hashFile(fileContent.toString());
+        this.hash = FileHasher.hashFile(fileContent.toString());
     }
-    
-    public static Blob createBlobObject(Path filePath){
+
+    public static Blob createBlobObject(Path filePath) {
         Blob blob = new Blob(filePath);
         String fileContents = FileHasher.getFileContents(filePath).toString();
         blob.setContents(fileContents);
         return blob;
     }
 
+    public static Blob getBlobFromHash(Path repoPath, String hash) throws IOException {
+        Path indexFilePath = repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH);
+        Blob blob = new Blob(indexFilePath);
+
+        Path objectFile = blob.getHashFile(repoPath, hash);
+        blob.buildFromHash(objectFile);
+        return blob;
+    }
+
+    private void buildFromHash(Path objectFile) {
+        StringBuilder blobContent = FileHasher.getFileContents(objectFile);
+        String[] blobObjectContentsArray = blobContent.toString().split(" ", Constants.BLOB_FIELDS);
+        this.setContents(blobObjectContentsArray[2]);
+    }
+
+    private Path getHashFile(Path repoPath, String hash) throws IOException {
+        Path objectsDirectory = repoPath.resolve(Constants.VCS_OBJECTS);
+        Path bucketPath = objectsDirectory.resolve(hash.substring(0, 2));
+        if (Files.exists(bucketPath) && Files.isDirectory(bucketPath)) {
+
+            Optional<Path> treeObjectPathOptional = Files.list(bucketPath)
+                    .filter(path -> {
+                        return path.getFileName().toString().startsWith(hash.substring(2));
+                    })
+                    .findAny();
+            Path treeObjectPath = treeObjectPathOptional != null ? treeObjectPathOptional.get() : null;
+
+            return treeObjectPath;
+
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public String toString() {
-        return "blob " + this.contents.length()+ " " + this.contents;
+        return "blob " + this.contents.length() + " " + this.contents;
     }
-    
+
 }

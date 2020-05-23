@@ -6,6 +6,7 @@
 package Objects;
 
 import Object.commit.Commit;
+import index.RepositoryIndex;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,6 +48,10 @@ public class Branch {
         this.commitId = commitHash;
     }
 
+    public Path getRepoPath() {
+        return this.branchFilePath.resolve("../../../").normalize();
+    }
+
     private static String getCurrentBranchName(Path repoPath) throws IOException {
         Path configFile = repoPath.resolve(Constants.CONFIG_FILE);
         String currentBranchName = Files.readAllLines(configFile).get(Constants.BRANCH_LINE_IN_CONFIG).split(":")[1];
@@ -54,8 +59,8 @@ public class Branch {
     }
 
     private void setCurrentBranch() throws IOException {
-        Path configFile = this.branchFilePath.resolve("../../../").normalize().resolve(Constants.CONFIG_FILE);
-        String config = "branch:"+this.name + System.lineSeparator();
+        Path configFile = this.getRepoPath().resolve(Constants.CONFIG_FILE);
+        String config = "branch:" + this.name + System.lineSeparator();
         Files.write(configFile, config.getBytes());
     }
 
@@ -138,8 +143,12 @@ public class Branch {
     }
 
     public void restoreBranchState() {
-        /**
-         * load the commit info and restore the state of the directory.
-         */
+        try {
+            Commit latestBranchCommit = Commit.getCommitFromId(this, commitId);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            System.err.println("could not return to branch branch state.");
+        }
+
     }
 }

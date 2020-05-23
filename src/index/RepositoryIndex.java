@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.Date;
 import Objects.Blob;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.Arrays;
 import vcs.FileHasher;
 
 /**
@@ -43,14 +44,29 @@ public class RepositoryIndex {
         return this.repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH);
     }
 
+    public Map<String, IndexElement> getIndex() {
+        return index;
+    }
+    
+    
+
     public Path getRepoPath() {
         return repoPath;
     }
 
-    private void populateIndex() throws IOException {
-        List<String> lines = new ArrayList<>(Files.readAllLines(this.getIndexFilePath(), StandardCharsets.UTF_8));
+    private List<String> getIndexFileContents() throws IOException {
+        return new ArrayList<>(Files.readAllLines(this.getIndexFilePath(), StandardCharsets.UTF_8));
+    }
 
-        lines.forEach((String line) -> {
+    private List<String> getIndexFileContents(String indexHash) throws IOException {
+        Blob indexFileBlob = Blob.getBlobFromHash(this.getRepoPath(), indexHash);
+        List<String> indexFileContents = Arrays.asList(indexFileBlob.getContents().split(System.lineSeparator()));
+        return indexFileContents;
+    }
+
+    private void populateIndex(List<String> entries) throws IOException {
+
+        entries.forEach((String line) -> {
             String[] words = line.split(",");
             IndexElement indexElement = new IndexElement(words[0]);
             indexElement.createExistingElement(Long.parseLong(words[1]),
@@ -65,8 +81,21 @@ public class RepositoryIndex {
 
     public static RepositoryIndex createIndex(Path repoPath) throws IOException {
         RepositoryIndex index = new RepositoryIndex(repoPath);
-        index.populateIndex();
+        List<String> entries = index.getIndexFileContents();
+        index.populateIndex(entries);
         return index;
+    }
+
+    public static RepositoryIndex getCommitIndex(Path repoPath, String indexHash) {
+        RepositoryIndex index = new RepositoryIndex(repoPath);
+        try {
+            List<String> entries = index.getIndexFileContents(indexHash);
+            index.populateIndex(entries);
+            return index;
+        } catch (IOException ex) {
+            System.err.println("Could not read index file from index object : " + indexHash);
+          return null;
+        }
     }
 
     public void addEntry(IndexElement item) {
@@ -116,9 +145,9 @@ public class RepositoryIndex {
     }
 
     public boolean hasUnstagedDeletedChanges() {
-        for(IndexElement element : this.index.values()) {
-            if(element.isDeleted()) {
-                if(!element.isStaged()) {
+        for (IndexElement element : this.index.values()) {
+            if (element.isDeleted()) {
+                if (!element.isStaged()) {
                     return true;
                 }
             }
@@ -142,7 +171,8 @@ public class RepositoryIndex {
         //future implementation calculate the diff of the files and change only the updated entry.
         try {
             this.clearIndex();
-            this.populateIndex();
+            List<String> entries = this.getIndexFileContents();
+            this.populateIndex(entries);
         } catch (IOException ex) {
             System.out.println("Could not update index");
         }
@@ -172,4 +202,5 @@ public class RepositoryIndex {
             }
         }
     }
+
 }

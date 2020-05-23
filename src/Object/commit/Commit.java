@@ -38,6 +38,16 @@ public class Commit extends Objects.Object {
         this.timeStamp = new Date();
         this.branch = branch;
     }
+    
+    private Commit(){
+        
+    }
+
+    public RepositoryIndex getIndexSnapshot() {
+        return indexSnapshot;
+    }
+    
+    
 
     public void setCommitMessage(String commitMessage) {
         this.commitMessage = commitMessage;
@@ -45,6 +55,19 @@ public class Commit extends Objects.Object {
 
     public void setIndexFileBlobHash(String indexFileBlobHash) {
         this.indexFileBlobHash = indexFileBlobHash;
+    }
+    
+    public static Commit getCommitFromId(Branch currentBranch,String commitId) throws IOException{
+        Path repoPath = currentBranch.getRepoPath();
+        
+        Path commitFilePath = repoPath.resolve(Constants.VCS_COMMIT).resolve(commitId);
+        String indexFileHash = Files.readAllLines(commitFilePath).get(Constants.INDEX_HASH_IN_COMMIT).split(":")[1];
+        System.out.println(indexFileHash);
+        RepositoryIndex commitIndex = RepositoryIndex.getCommitIndex(repoPath, indexFileHash);
+        
+        Commit commit = Commit.createCommit(currentBranch, commitIndex);
+        return commit;
+        
     }
 
     public static Commit createCommit(Branch branch, RepositoryIndex indexSnapshot) {
