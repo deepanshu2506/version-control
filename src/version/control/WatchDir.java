@@ -42,6 +42,10 @@ public class WatchDir implements Runnable {
         return (WatchEvent<T>) event;
     }
 
+    private String relativeFilePath(Path path) {
+        return path.toString().substring(this.directory.toString().length());
+    }
+
     private void register(Path dir) throws IOException {
         WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
         if (trace) {
@@ -51,6 +55,7 @@ public class WatchDir implements Runnable {
             } else {
                 if (!dir.equals(prev)) {
                     System.out.format("update: %s => %s\n", prev, dir);
+                    //replace the path in the index
                 }
             }
         }
@@ -58,7 +63,7 @@ public class WatchDir implements Runnable {
         try (Stream<Path> paths = Files.walk(dir, 1)) {
             paths.filter(path -> !(path.startsWith(this.directory.resolve(".vcs")) || path.equals(this.directory)))
                     .forEach((Path path) -> {
-                        String relativeFilePath = path.toString().substring(this.directory.toString().length());
+                        String relativeFilePath = this.relativeFilePath(path);
                         IndexElement indexElement = repositoryFileIndex.findByPath(relativeFilePath);
                         if (indexElement == null) {
 
@@ -69,6 +74,7 @@ public class WatchDir implements Runnable {
                             this.repositoryFileIndex.addEntry(newElement);
                         }
                     });
+            this.repositoryFileIndex.flushToStore();
         }
         this.keys.put(key, dir);
     }
@@ -142,6 +148,11 @@ public class WatchDir implements Runnable {
                         try {
                             if (Files.isDirectory(fileModified, NOFOLLOW_LINKS)) {
                                 registerAll(fileModified);
+                            } else {
+                                String relativeFilePath = this.relativeFilePath(fileModified);
+                                IndexElement element = new IndexElement(relativeFilePath);
+                                this.repositoryFileIndex.addEntry(element);
+                                this.repositoryFileIndex.flushToStore();
                             }
                         } catch (IOException e) {
 
@@ -155,9 +166,11 @@ public class WatchDir implements Runnable {
                             } catch (IOException ex) {
                                 System.err.println("IOException at entry modify");
                             }
-                        }else{
+                        } else {
                             this.repositoryFileIndex.refresh();
                         }
+                    } else if (kind == ENTRY_DELETE) {
+                        //handle delete
                     }
                     boolean valid = key.reset();
                     if (!valid) {

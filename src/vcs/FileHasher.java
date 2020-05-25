@@ -4,6 +4,7 @@ import Objects.Blob;
 import Objects.Tree.Tree;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
@@ -11,8 +12,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -103,6 +106,17 @@ public class FileHasher {
         }
         try (BufferedWriter writer = Files.newBufferedWriter(bucketPath.resolve(hash.substring(2)), Charset.forName("UTF-8"))) {
             writer.write(object.toString());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void deleteDirectory(Path rootPath) {
+        try (Stream<Path> walk = Files.walk(rootPath)) {
+            walk.sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .peek(System.out::println)
+                    .forEach(File::delete);
         } catch (IOException ex) {
             ex.printStackTrace();
         }

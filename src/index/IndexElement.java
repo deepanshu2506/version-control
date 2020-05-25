@@ -33,7 +33,7 @@ public class IndexElement {
         this.isDeleted = false;
     }
 
-    public IndexElement createExistingElement(Long timeStamp, boolean isDirectory, boolean isStaged, String latestCommitHash, String latestStagedHash, Boolean isModified, Boolean isDeleted) {
+    public void createExistingElement(Long timeStamp, boolean isDirectory, boolean isStaged, String latestCommitHash, String latestStagedHash, Boolean isModified, Boolean isDeleted) {
         this.timeStamp = timeStamp;
         this.isDirectory = isDirectory;
         this.isStaged = isStaged;
@@ -41,7 +41,6 @@ public class IndexElement {
         this.latestStagedHash = latestStagedHash != "null" ? latestStagedHash : null;
         this.isModified = isModified;
         this.isDeleted = isDeleted;
-        return this;
     }
 
     public void setAsDirectory() {
@@ -109,7 +108,7 @@ public class IndexElement {
 
     @Override
     public String toString() {
-        return this.filePath + "," + this.timeStamp + "," + this.isDirectory + "," + isStaged + "," + this.lastCommitHash + "," + this.latestStagedHash + "," + this.isModified +","+ this.isDeleted;
+        return this.filePath + "," + this.timeStamp + "," + this.isDirectory + "," + isStaged + "," + this.lastCommitHash + "," + this.latestStagedHash + "," + this.isModified + "," + this.isDeleted;
     }
 
 }

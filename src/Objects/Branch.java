@@ -15,6 +15,7 @@ import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import vcs.Constants;
+import vcs.DiffGenerator;
 
 /**
  *
@@ -142,12 +143,16 @@ public class Branch {
 
     }
 
-    public void restoreBranchState() {
+    public RepositoryIndex restoreBranchState(RepositoryIndex currentRepoIndex) {
+        Commit latestBranchCommit = null;
         try {
-            Commit latestBranchCommit = Commit.getCommitFromId(this, commitId);
+            latestBranchCommit = Commit.getCommitFromId(this, commitId);
+            DiffGenerator.getIndexDiff(currentRepoIndex, latestBranchCommit.getIndexSnapshot());
+            return latestBranchCommit.getIndexSnapshot();
         } catch (IOException ex) {
             ex.printStackTrace();
             System.err.println("could not return to branch branch state.");
+            return null;
         }
 
     }

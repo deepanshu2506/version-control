@@ -23,6 +23,8 @@ import java.util.Date;
 import Objects.Blob;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.stream.Stream;
 import vcs.FileHasher;
 
 /**
@@ -43,12 +45,10 @@ public class RepositoryIndex {
     public Path getIndexFilePath() {
         return this.repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH);
     }
-
-    public Map<String, IndexElement> getIndex() {
-        return index;
+    
+    public List<IndexElement> getIndexEntries(){
+        return new ArrayList(this.index.values());
     }
-    
-    
 
     public Path getRepoPath() {
         return repoPath;
@@ -94,7 +94,7 @@ public class RepositoryIndex {
             return index;
         } catch (IOException ex) {
             System.err.println("Could not read index file from index object : " + indexHash);
-          return null;
+            return null;
         }
     }
 
@@ -200,6 +200,31 @@ public class RepositoryIndex {
                     System.out.println("modified: " + element.getFilePath());
                 }
             }
+        }
+    }
+
+    public void restoreToFileSystem(RepositoryIndex currentIndex) throws IOException {
+        
+        
+        try (Stream<Path> walk = Files.walk(this.repoPath, Integer.MAX_VALUE)) {
+            walk.filter(path -> !path.equals(this.repoPath))
+                    .forEach(path -> {
+                        String relativePath = path.toString().substring(this.repoPath.toString().length());
+                        try {
+                            if (this.index.containsKey(relativePath)) {
+                                IndexElement fileMetaData = this.index.get(relativePath);
+                                
+                            } else {
+                                if(Files.isDirectory(path)){
+                                    FileHasher.deleteDirectory(path);
+                                }else{
+                                    Files.deleteIfExists(path);
+                                }
+                            }
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    });
         }
     }
 

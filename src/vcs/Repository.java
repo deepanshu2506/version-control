@@ -32,7 +32,7 @@ public class Repository {
 
     private final Path location;
     private boolean init;
-    private final RepositoryIndex index;
+    private RepositoryIndex index;
     private Branch currentBranch;
 
     private Repository(String currentDirectory) throws IOException {
@@ -59,7 +59,7 @@ public class Repository {
 
     private void setCurrentBranch(Branch currentBranch) {
         this.currentBranch = currentBranch;
-        currentBranch.restoreBranchState();
+        this.index = currentBranch.restoreBranchState(this.index);
     }
 
     public void recordToIndex(Objects.Object obj) {
@@ -73,10 +73,9 @@ public class Repository {
     public void stage(Path paths[]) {
         for (Path path : paths) {
             String relativeFilePath = path.toString().substring(this.location.toString().length());
-            if(this.index.findByPath(relativeFilePath).isDeleted()) {
+            if (this.index.findByPath(relativeFilePath).isDeleted()) {
                 this.index.removeEntry(relativeFilePath);
-            }
-            else {
+            } else {
                 if (Files.isRegularFile(path)) {
                     this.stageFile(path);
                 } else if (Files.isDirectory(path)) {
@@ -150,11 +149,10 @@ public class Repository {
 
     public void commit(String message) {
         if (User.exists()) {
-            if(this.index.hasUnstagedDeletedChanges()) {
+            if (this.index.hasUnstagedDeletedChanges()) {
                 System.out.println("You have Deleted Changes which are not staged. Cannot Commit Changes");
                 System.out.println("Please Stage Deleted Files to Complete Commit");
-            }
-            else {
+            } else {
                 if (this.index.hasStagedChanges()) {
                     Commit commit = Commit.createCommit(this.currentBranch, index);
                     commit.setCommitMessage(message);
