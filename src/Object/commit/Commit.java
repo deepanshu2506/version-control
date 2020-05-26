@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import vcs.Constants;
-import vcs.FileHasher;
+import vcs.FileUtils;
 
 /**
  *
@@ -74,8 +74,8 @@ public class Commit extends Objects.Object {
         Path indexFilePath = commit.indexSnapshot.getIndexFilePath();
         Blob commitBlob = Blob.createBlobObject(indexFilePath);
         commit.setIndexFileBlobHash(commitBlob.getHash());
-        commit.setHash(FileHasher.hashFile(commit.toString()));
-        FileHasher.saveHashToDisk(commitBlob, commit.indexSnapshot.getRepoPath());
+        commit.setHash(FileUtils.hashFile(commit.toString()));
+        FileUtils.saveHashToDisk(commitBlob, commit.indexSnapshot.getRepoPath());
         commit.setLastCommitHash();
         return commit;
     }
@@ -137,7 +137,7 @@ public class Commit extends Objects.Object {
     private static void printCommits(String commitHash, Path repoPath) {
         Path commitsDirectory = repoPath.resolve(Constants.VCS_COMMIT);
         Path commitFilePath = commitsDirectory.resolve(commitHash);
-        String commmitContents = FileHasher.getFileContents(commitFilePath).toString();
+        String commmitContents = FileUtils.getFileContents(commitFilePath).toString();
         System.out.println(commmitContents);
         System.out.println("-------------------------------------------");
         String lineSeparator = System.lineSeparator();

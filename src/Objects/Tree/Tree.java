@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import vcs.Constants;
-import vcs.FileHasher;
+import vcs.FileUtils;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -59,7 +59,7 @@ public class Tree extends Objects.Object {
 
     public void addChild(TreeItem item) {
         this.children.add(item);
-        String hash = FileHasher.hashFile(this.toString());
+        String hash = FileUtils.hashFile(this.toString());
         this.hash = hash;
     }
 

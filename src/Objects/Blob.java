@@ -7,7 +7,7 @@ import java.nio.file.Path;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-import vcs.FileHasher;
+import vcs.FileUtils;
 import vcs.Constants;
 import Objects.Object;
 import java.io.BufferedReader;
@@ -38,12 +38,12 @@ public class Blob extends Objects.Object {
         StringBuilder fileContent = new StringBuilder();
         fileContent.insert(0, this.contents.length() + " ");
         fileContent.insert(0, "blob ");
-        this.hash = FileHasher.hashFile(fileContent.toString());
+        this.hash = FileUtils.hashFile(fileContent.toString());
     }
 
     public static Blob createBlobObject(Path filePath) {
         Blob blob = new Blob(filePath);
-        String fileContents = FileHasher.getFileContents(filePath).toString();
+        String fileContents = FileUtils.getFileContents(filePath).toString();
         blob.setContents(fileContents);
         return blob;
     }
@@ -58,7 +58,7 @@ public class Blob extends Objects.Object {
     }
 
     private void buildFromHash(Path objectFile) {
-        StringBuilder blobContent = FileHasher.getFileContents(objectFile);
+        StringBuilder blobContent = FileUtils.getFileContents(objectFile);
         String[] blobObjectContentsArray = blobContent.toString().split(" ", Constants.BLOB_FIELDS);
         this.setContents(blobObjectContentsArray[2]);
     }

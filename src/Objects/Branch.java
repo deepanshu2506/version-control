@@ -147,7 +147,7 @@ public class Branch {
         Commit latestBranchCommit = null;
         try {
             latestBranchCommit = Commit.getCommitFromId(this, commitId);
-//            currentRepoIndex.resolveChanges(latestBranchCommit.getIndexSnapshot());
+            currentRepoIndex.resolveChanges(latestBranchCommit.getIndexSnapshot());
             return latestBranchCommit.getIndexSnapshot();
         } catch (IOException ex) {
             ex.printStackTrace();

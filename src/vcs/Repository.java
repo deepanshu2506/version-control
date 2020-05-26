@@ -16,6 +16,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.DirectoryStream;
 import java.nio.file.StandardOpenOption;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static vcs.Constants.REGISTER_LOCATION;
 
@@ -58,8 +60,14 @@ public class Repository {
     }
 
     private void setCurrentBranch(Branch currentBranch) {
+        Branch oldBranch = this.currentBranch;
         this.currentBranch = currentBranch;
         this.index = currentBranch.restoreBranchState(this.index);
+        try {
+            this.index.flushToStore();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void recordToIndex(Objects.Object obj) {
@@ -99,7 +107,7 @@ public class Repository {
         while (!filePath.equals(this.location)) {
             if (Files.isRegularFile(filePath)) {
                 Blob fileBlob = Blob.createBlobObject(filePath);
-                FileHasher.saveHashToDisk(fileBlob, this.location);
+                FileUtils.saveHashToDisk(fileBlob, this.location);
                 this.recordToIndex(fileBlob);
                 childObject = fileBlob;
                 childType = ChildTypes.BLOB;
@@ -117,7 +125,7 @@ public class Repository {
                         dirInstance = Tree.createTree(this.location, filePath, dirObjectHashStart);
                         dirInstance.addOrReplaceChild(childObject, childType);
                     }
-                    FileHasher.saveHashToDisk(dirInstance, this.location);
+                    FileUtils.saveHashToDisk(dirInstance, this.location);
                     this.recordToIndex(dirInstance);
                     childObject = dirInstance;
                     childType = ChildTypes.TREE;

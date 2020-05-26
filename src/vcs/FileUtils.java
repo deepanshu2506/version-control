@@ -2,6 +2,7 @@ package vcs;
 
 import Objects.Blob;
 import Objects.Tree.Tree;
+import index.IndexElement;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,6 +14,7 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -26,11 +28,11 @@ import java.util.stream.Stream;
  *
  * @author Deepanshu Vangani
  */
-public class FileHasher {
+public class FileUtils {
 
     private final Path repoPath;
 
-    public FileHasher(Path repoPath) {
+    public FileUtils(Path repoPath) {
         this.repoPath = repoPath;
     }
 
@@ -66,7 +68,7 @@ public class FileHasher {
                 try {
                     fileReader.close();
                 } catch (IOException ex) {
-                    System.out.println(FileHasher.class.getName() + " cannot close file");
+                    System.out.println(FileUtils.class.getName() + " cannot close file");
                 }
             }
         }
@@ -114,11 +116,54 @@ public class FileHasher {
     public static void deleteDirectory(Path rootPath) {
         try (Stream<Path> walk = Files.walk(rootPath)) {
             walk.sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .peek(System.out::println)
-                    .forEach(File::delete);
+                    .forEach((path) -> {
+                        try {
+                            Files.deleteIfExists(path);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    });
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+    public static void createFiles(Path repoPath, List<IndexElement> elements) {
+        for (IndexElement element : elements) {
+            try {
+                Path newfilePath = repoPath.resolve(element.getFilePath());
+                if (element.isDirectory()) {
+                    Files.createDirectory(newfilePath);
+                } else {
+                    if (!Files.exists(newfilePath.getParent())) {
+                        Files.createDirectories(newfilePath.getParent());
+                    }
+                    Blob blobFromObjects = Blob.getBlobFromHash(repoPath, element.getLastCommitHash());
+                    Files.write(newfilePath, blobFromObjects.getContents().getBytes());
+                }
+                System.out.println("Done");
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    public static void deleteFiles(Path repoPath, List<IndexElement> elements) {
+        for (IndexElement element : elements) {
+            try {
+                Path deleteFilePath = repoPath.resolve(element.getFilePath());
+                if (element.isDirectory()) {
+                    if (Files.exists(deleteFilePath)) {
+                        FileUtils.deleteDirectory(deleteFilePath);
+                    }
+                } else {
+                    Files.deleteIfExists(deleteFilePath);
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
     }
 }

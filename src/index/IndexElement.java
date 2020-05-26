@@ -70,6 +70,10 @@ public class IndexElement {
         return this.isStaged;
     }
 
+    public Boolean isDirectory() {
+        return this.isDirectory;
+    }
+
     public boolean isDeleted() {
         return this.isDeleted;
     }

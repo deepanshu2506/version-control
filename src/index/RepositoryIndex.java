@@ -19,7 +19,10 @@ import Objects.Blob;
 import difflib.Delta;
 import difflib.Delta.TYPE;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
 import vcs.DiffGenerator;
+import vcs.FileUtils;
 
 /**
  *
@@ -197,19 +200,60 @@ public class RepositoryIndex {
         }
     }
 
+    private IndexElement createExistingIndexElement(String indexEntry) {
+        String[] indexEntryArray = indexEntry.split(",");
+        IndexElement element = new IndexElement(indexEntryArray[0]);
+        element.createExistingElement(Long.parseLong(indexEntryArray[1]),
+                Boolean.parseBoolean(indexEntryArray[2]),
+                Boolean.parseBoolean(indexEntryArray[3]),
+                indexEntryArray[4], indexEntryArray[5],
+                Boolean.parseBoolean(indexEntryArray[6]),
+                Boolean.parseBoolean(indexEntryArray[7]));
+        return element;
+    }
+
     public void resolveChanges(RepositoryIndex newIndex) throws IOException {
-        List<Delta<String>> deltas = DiffGenerator.getIndexDiff(newIndex, newIndex);
+        List<Delta<String>> deltas = DiffGenerator.getIndexDiff(this, newIndex);
+        List<IndexElement> insertIndexElements = new LinkedList<>();
+        List<IndexElement> deleteIndexElements = new LinkedList<>();
+
         deltas.forEach(delta -> {
+            System.out.println(delta);
             TYPE deltaType = delta.getType();
 
             if (deltaType == TYPE.INSERT) {
                 List<String> newIndexEntries = delta.getRevised().getLines();
                 newIndexEntries.forEach(indexEntry -> {
-                    String pathString = indexEntry.split(",")[0];
-
+                    IndexElement element = this.createExistingIndexElement(indexEntry);
+                    insertIndexElements.add(element);
                 });
+
+            } else if (deltaType == TYPE.DELETE) {
+                List<String> deletedEntries = delta.getRevised().getLines();
+                deletedEntries.forEach(entry -> {
+                    IndexElement element = this.createExistingIndexElement(entry);
+                    deleteIndexElements.add(element);
+                });
+            } else if (deltaType == TYPE.CHANGE) {
+                List<String> deletedEntries = delta.getOriginal().getLines();
+                List<String> insertEntries = delta.getRevised().getLines();
+                Iterator<String> itInsert = insertEntries.iterator();
+                Iterator<String> itDelete = deletedEntries.iterator();
+
+                while (itInsert.hasNext() || itDelete.hasNext()) {
+                    if (itInsert.hasNext()) {
+                        IndexElement entry = this.createExistingIndexElement(itInsert.next());
+                        insertIndexElements.add(entry);
+                    }
+                    if (itDelete.hasNext()) {
+                        IndexElement entry = this.createExistingIndexElement(itDelete.next());
+                        insertIndexElements.add(entry);
+                    }
+                }
             }
         });
+        FileUtils.createFiles(this.getRepoPath(), insertIndexElements);
+        FileUtils.deleteFiles(this.getRepoPath(), deleteIndexElements);
     }
 
 }
