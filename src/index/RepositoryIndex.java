@@ -5,7 +5,6 @@
  */
 package index;
 
-import index.IndexElement;
 import vcs.Constants;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,17 +14,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.Date;
 import Objects.Blob;
-import java.nio.file.FileAlreadyExistsException;
+import difflib.Delta;
+import difflib.Delta.TYPE;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.stream.Stream;
-import vcs.FileHasher;
+import vcs.DiffGenerator;
 
 /**
  *
@@ -45,8 +39,8 @@ public class RepositoryIndex {
     public Path getIndexFilePath() {
         return this.repoPath.resolve(Constants.RELATIVE_INDEXFILE_PATH);
     }
-    
-    public List<IndexElement> getIndexEntries(){
+
+    public List<IndexElement> getIndexEntries() {
         return new ArrayList(this.index.values());
     }
 
@@ -65,7 +59,7 @@ public class RepositoryIndex {
     }
 
     private void populateIndex(List<String> entries) throws IOException {
-
+        System.out.println("-----------------------------");
         entries.forEach((String line) -> {
             String[] words = line.split(",");
             IndexElement indexElement = new IndexElement(words[0]);
@@ -203,29 +197,19 @@ public class RepositoryIndex {
         }
     }
 
-    public void restoreToFileSystem(RepositoryIndex currentIndex) throws IOException {
-        
-        
-        try (Stream<Path> walk = Files.walk(this.repoPath, Integer.MAX_VALUE)) {
-            walk.filter(path -> !path.equals(this.repoPath))
-                    .forEach(path -> {
-                        String relativePath = path.toString().substring(this.repoPath.toString().length());
-                        try {
-                            if (this.index.containsKey(relativePath)) {
-                                IndexElement fileMetaData = this.index.get(relativePath);
-                                
-                            } else {
-                                if(Files.isDirectory(path)){
-                                    FileHasher.deleteDirectory(path);
-                                }else{
-                                    Files.deleteIfExists(path);
-                                }
-                            }
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
-                    });
-        }
+    public void resolveChanges(RepositoryIndex newIndex) throws IOException {
+        List<Delta<String>> deltas = DiffGenerator.getIndexDiff(newIndex, newIndex);
+        deltas.forEach(delta -> {
+            TYPE deltaType = delta.getType();
+
+            if (deltaType == TYPE.INSERT) {
+                List<String> newIndexEntries = delta.getRevised().getLines();
+                newIndexEntries.forEach(indexEntry -> {
+                    String pathString = indexEntry.split(",")[0];
+
+                });
+            }
+        });
     }
 
 }

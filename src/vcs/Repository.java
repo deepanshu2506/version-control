@@ -110,12 +110,12 @@ public class Repository {
                 String dirObjectHashStart = this.index.getLatestHash(relativeFilePath);
                 Tree dirInstance;
                 try {
-                    if (!dirObjectHashStart.equals("null")) {
-                        dirInstance = Tree.createTree(this.location, filePath, dirObjectHashStart);
-                        dirInstance.addOrReplaceChild(childObject, childType);
-                    } else {
+                    if (dirObjectHashStart.equals("null")) {
                         dirInstance = Tree.createTree(this.location, filePath);
                         dirInstance.addChild(childObject, childType);
+                    } else {
+                        dirInstance = Tree.createTree(this.location, filePath, dirObjectHashStart);
+                        dirInstance.addOrReplaceChild(childObject, childType);
                     }
                     FileHasher.saveHashToDisk(dirInstance, this.location);
                     this.recordToIndex(dirInstance);

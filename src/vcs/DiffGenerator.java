@@ -24,13 +24,10 @@ import java.util.stream.Collectors;
 
 public class DiffGenerator {
 
-    public static void getIndexDiff(RepositoryIndex currentIndex, RepositoryIndex newIndex) {
+    public static List<Delta<String>> getIndexDiff(RepositoryIndex currentIndex, RepositoryIndex newIndex) {
         List<String> original = currentIndex.getIndexEntries().stream().map(IndexElement::toString).collect(Collectors.toList());
         List<String> revised = newIndex.getIndexEntries().stream().map(IndexElement::toString).collect(Collectors.toList());
         Patch<String> patch = DiffUtils.diff(original, revised);
-        System.out.println("differences");
-        for (Delta<String> delta : patch.getDeltas()) {
-            System.out.println(delta);
-        }
+        return patch.getDeltas();
     }
 }

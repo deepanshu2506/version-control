@@ -33,14 +33,19 @@ public class IndexElement {
         this.isDeleted = false;
     }
 
-    public void createExistingElement(Long timeStamp, boolean isDirectory, boolean isStaged, String latestCommitHash, String latestStagedHash, Boolean isModified, Boolean isDeleted) {
+    public IndexElement createExistingElement(Long timeStamp, boolean isDirectory, boolean isStaged, String latestCommitHash, String latestStagedHash, Boolean isModified, Boolean isDeleted) {
         this.timeStamp = timeStamp;
         this.isDirectory = isDirectory;
         this.isStaged = isStaged;
-        this.lastCommitHash = lastCommitHash != "null" ? latestCommitHash : null;
-        this.latestStagedHash = latestStagedHash != "null" ? latestStagedHash : null;
+        if (!latestCommitHash.equals("null")) {
+            this.lastCommitHash = latestCommitHash;
+        }
+        if (!latestStagedHash.equals("null")) {
+            this.latestStagedHash = latestStagedHash;
+        }
         this.isModified = isModified;
         this.isDeleted = isDeleted;
+        return this;
     }
 
     public void setAsDirectory() {

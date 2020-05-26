@@ -22,6 +22,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
+import vcs.Constants;
 
 /**
  *
@@ -66,7 +67,6 @@ public class WatchDir implements Runnable {
                         String relativeFilePath = this.relativeFilePath(path);
                         IndexElement indexElement = repositoryFileIndex.findByPath(relativeFilePath);
                         if (indexElement == null) {
-
                             IndexElement newElement = new IndexElement(relativeFilePath);
                             if (Files.isDirectory(path)) {
                                 newElement.setAsDirectory();
@@ -78,7 +78,6 @@ public class WatchDir implements Runnable {
         }
         this.keys.put(key, dir);
     }
-
     private void registerAll(final Path start) throws IOException {
         Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
 
@@ -149,10 +148,13 @@ public class WatchDir implements Runnable {
                             if (Files.isDirectory(fileModified, NOFOLLOW_LINKS)) {
                                 registerAll(fileModified);
                             } else {
-                                String relativeFilePath = this.relativeFilePath(fileModified);
-                                IndexElement element = new IndexElement(relativeFilePath);
-                                this.repositoryFileIndex.addEntry(element);
-                                this.repositoryFileIndex.flushToStore();
+                                Path commitsFolder = this.directory.resolve(Constants.VCS_COMMIT);
+                                if (!fileModified.startsWith(commitsFolder)) {
+                                    String relativeFilePath = this.relativeFilePath(fileModified);
+                                    IndexElement element = new IndexElement(relativeFilePath);
+                                    this.repositoryFileIndex.addEntry(element);
+                                    this.repositoryFileIndex.flushToStore();
+                                }
                             }
                         } catch (IOException e) {
 

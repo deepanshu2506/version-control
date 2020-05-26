@@ -102,19 +102,19 @@ public class Commit extends Objects.Object {
     public String toString() {
         String lineSeparator = System.lineSeparator();
         StringBuilder commitData = new StringBuilder();
-        commitData.append("IndexFile :" + this.indexFileBlobHash);
+        commitData.append("IndexFile :").append(this.indexFileBlobHash);
         commitData.append(lineSeparator);
-        commitData.append("Branch :" + this.branch.getName());
+        commitData.append("Branch :").append(this.branch.getName());
         commitData.append(lineSeparator);
-        commitData.append("timeStamp:" + this.timeStamp.toString());
+        commitData.append("timeStamp:").append(this.timeStamp.toString());
         commitData.append(lineSeparator);
-        commitData.append("Username:" + User.username);
+        commitData.append("Username:").append(User.username);
         commitData.append(lineSeparator);
-        commitData.append("email:" + User.email);
+        commitData.append("email:").append(User.email);
         commitData.append(lineSeparator);
-        commitData.append("Message:" + this.commitMessage);
+        commitData.append("Message:").append(this.commitMessage);
         commitData.append(lineSeparator);
-        commitData.append("lastCommitHash:" + this.lastCommitHash);
+        commitData.append("lastCommitHash:").append(this.lastCommitHash);
         return commitData.toString();
     }
 
