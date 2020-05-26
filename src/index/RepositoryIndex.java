@@ -218,7 +218,6 @@ public class RepositoryIndex {
         List<IndexElement> deleteIndexElements = new LinkedList<>();
 
         deltas.forEach(delta -> {
-            System.out.println(delta);
             TYPE deltaType = delta.getType();
 
             if (deltaType == TYPE.INSERT) {
@@ -229,7 +228,7 @@ public class RepositoryIndex {
                 });
 
             } else if (deltaType == TYPE.DELETE) {
-                List<String> deletedEntries = delta.getRevised().getLines();
+                List<String> deletedEntries = delta.getOriginal().getLines();
                 deletedEntries.forEach(entry -> {
                     IndexElement element = this.createExistingIndexElement(entry);
                     deleteIndexElements.add(element);
@@ -247,7 +246,7 @@ public class RepositoryIndex {
                     }
                     if (itDelete.hasNext()) {
                         IndexElement entry = this.createExistingIndexElement(itDelete.next());
-                        insertIndexElements.add(entry);
+                        deleteIndexElements.add(entry);
                     }
                 }
             }

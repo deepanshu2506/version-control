@@ -131,7 +131,9 @@ public class FileUtils {
     public static void createFiles(Path repoPath, List<IndexElement> elements) {
         for (IndexElement element : elements) {
             try {
-                Path newfilePath = repoPath.resolve(element.getFilePath());
+                //substring used to remove the leading \ from relative path as it escaped the repoPath to the parent of repoPath
+                Path newfilePath = repoPath.resolve(element.getFilePath().substring(1));
+
                 if (element.isDirectory()) {
                     Files.createDirectory(newfilePath);
                 } else {
@@ -141,8 +143,6 @@ public class FileUtils {
                     Blob blobFromObjects = Blob.getBlobFromHash(repoPath, element.getLastCommitHash());
                     Files.write(newfilePath, blobFromObjects.getContents().getBytes());
                 }
-                System.out.println("Done");
-
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -152,7 +152,10 @@ public class FileUtils {
     public static void deleteFiles(Path repoPath, List<IndexElement> elements) {
         for (IndexElement element : elements) {
             try {
-                Path deleteFilePath = repoPath.resolve(element.getFilePath());
+                //substring used to remove the leading \ from relative path as it escaped the repoPath to the parent of repoPath
+                Path deleteFilePath = repoPath.resolve(element.getFilePath().substring(1));
+
+                System.out.println(deleteFilePath);
                 if (element.isDirectory()) {
                     if (Files.exists(deleteFilePath)) {
                         FileUtils.deleteDirectory(deleteFilePath);
