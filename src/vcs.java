@@ -41,10 +41,14 @@ public class vcs {
                 if (args[0].equals("add")) {
                     if (args.length > 1) {
                         Path[] paths = new Path[args.length - 1];
-
-                        for (int i = 1; i < args.length; i++) {
-                            paths[i - 1] = Paths.get(currentDirectory, args[i]);
-                            repo.stage(paths);
+                        if (args[1].equals("-p")) {
+                            repo.interactiveStage();
+                            for (int i = 1; i < args.length; i++) {
+                                paths[i - 1] = Paths.get(currentDirectory, args[i]);
+                                repo.stage(paths);
+                            }
+                        } else if(args[1].equals("."){
+                            repo.stageAllChanges();
                         }
                     } else {
                         System.out.println("Usage , add [file names | . ]");
@@ -66,8 +70,7 @@ public class vcs {
 
                 } else if (args[0].equals("status")) {
                     repo.status();
-                }
-                else if(args[0].equals("checkout")){
+                } else if (args[0].equals("checkout")) {
                     repo.switchBranch(args[1]);
                 }
             } else {
