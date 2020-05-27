@@ -38,6 +38,30 @@ this command lists all the branches and points to the current working branch
     vcs branch
 	    
 	    
-	
+## setup
+
+ - clone the repo
+ - create this file "D:\\versionControl\\repos.vcs
+ - keep the service.bat file running
+ - place the vcs.bat file on the system path
+
+and you are good to go
+
+
+## contributing
+following features are to be developed
+ - [ ] merging branches
+ - [ ] restoring repo state to a past commit
+ - [ ] ignoring files similar to gitignore
+ - [ ] reducing the size of the .vcs folder
+ - [ ] reducing the space utilised by the file index
+ 
+ create an issue with the problem that you are going to solve and then submit a pr after you complete with the solution
+
+## web-portal
+A web portal on lines of github for this version-control-system is to be developed
+Feel free to knock yourself and come up with a solution.
+
+
 
 
