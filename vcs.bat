@@ -1,1 +1,1 @@
-java -jar D:\projects\version-control\dist\version-control.jar %*
+java -jar .\dist\version-control.jar %*
