@@ -44,6 +44,12 @@ public class Repository {
         this.currentBranch = Branch.getCurrentBranch(this.location);
     }
 
+    private Repository(String currentDirectory, boolean isNewRepo) throws IOException {
+        this.location = Paths.get(currentDirectory);
+        this.index = RepositoryIndex.createIndex(this.location);
+        this.currentBranch = Branch.createMasterBranch(this.location);
+    }
+
     public static Repository getRepo(String currentDirectory) throws IOException {
         Path currentDirectoryPath = Paths.get(currentDirectory);
         while (currentDirectoryPath != null) {
@@ -211,7 +217,7 @@ public class Repository {
                 created = new File(currentDirectory + "\\" + ".vcs" + "\\config.vcs").createNewFile();
                 success = success && created;
                 System.out.println("created=" + success);
-                repo = new Repository(currentDirectory);
+                repo = new Repository(currentDirectory, true);
                 success = repo.registerRepository();
                 if (success) {
                     repo.init = true;

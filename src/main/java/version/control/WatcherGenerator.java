@@ -28,6 +28,7 @@ public class WatcherGenerator extends TimerTask {
     private final BufferedReader repoPathsFileReader;
 
     public WatcherGenerator(Map<Path, WatchDir> repositories, String repoPathsFilePath) {
+        System.out.println(repoPathsFilePath);
         this.repoPathsFile = new File(repoPathsFilePath);
         this.repositories = repositories;
         FileReader fileReader = null;

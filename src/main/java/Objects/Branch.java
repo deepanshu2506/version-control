@@ -134,6 +134,15 @@ public class Branch {
             return false;
         }
     }
+    
+    public static Branch createMasterBranch(Path repoPath) throws IOException{
+        Path configFile = repoPath.resolve(Constants.CONFIG_FILE);
+        String config = "branch:master" + System.lineSeparator();
+        Files.write(configFile, config.getBytes());
+        Path masterBranchFile = repoPath.resolve(Constants.MASTER_BRANCH);
+        Files.write(masterBranchFile,"000000".getBytes());
+        return new Branch("master",masterBranchFile , "000000");
+    }
 
     private static Branch createNewBranch(String branchName, Path branchesDirectory, String commitId) throws IOException {
         Path branchFilePath = branchesDirectory.resolve(branchName);

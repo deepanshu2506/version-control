@@ -142,7 +142,7 @@ public class Commit extends Objects.Object {
         System.out.println("-------------------------------------------");
         String lineSeparator = System.lineSeparator();
         String previousCommit = commmitContents.split(lineSeparator)[Constants.PREVIOUS_COMMIT_HASH_LINE].split(":")[1];
-        if (!previousCommit.equals("null")) {
+        if (!previousCommit.equals("null") && !previousCommit.equals("000000")) {
             printCommits(previousCommit, repoPath);
         }
 
