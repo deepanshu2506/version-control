@@ -17,7 +17,7 @@ public class Constants {
     public static final String RELATIVE_INDEXFILE_PATH = ".vcs/tracked.vcs";
     public static final String VCS_COMMIT = VCS_FOLDER + "\\commits";
     public static final String CONFIG_FILE = VCS_FOLDER + "\\config.vcs";
-    public static final String GLOBAL_USER_CONFIG = "D:\\versioncontrol\\user.vcs";
+    public static final String GLOBAL_USER_CONFIG = "D:\\vcs\\user.vcs";
     public static final String BRANCHES_DIR = VCS_FOLDER + "\\refs";
     public static final String MASTER_BRANCH = BRANCHES_DIR + "\\master";
     

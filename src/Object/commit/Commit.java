@@ -125,11 +125,13 @@ public class Commit extends Objects.Object {
     public static void logCommits(Path repoPath) {
         Path branchPath = repoPath.resolve(Constants.MASTER_BRANCH);
         try {
+            System.out.println(Files.readAllLines(branchPath));
             String latestCommitHash = Files.readAllLines(branchPath).get(0);
             printCommits(latestCommitHash, repoPath);
         } catch (IOException e) {
             System.err.println("Could not read from master branch");
         } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
             System.err.println("No commits yet");
         }
     }
@@ -141,7 +143,9 @@ public class Commit extends Objects.Object {
         System.out.println(commmitContents);
         System.out.println("-------------------------------------------");
         String lineSeparator = System.lineSeparator();
+        System.out.println(commmitContents.split(lineSeparator));
         String previousCommit = commmitContents.split(lineSeparator)[Constants.PREVIOUS_COMMIT_HASH_LINE].split(":")[1];
+        
         if (!previousCommit.equals("null") && !previousCommit.equals("000000")) {
             printCommits(previousCommit, repoPath);
         }

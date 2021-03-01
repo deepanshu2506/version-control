@@ -86,6 +86,7 @@ public class Repository {
     }
 
     public void stage(List<Path> paths) {
+            System.out.println(paths);
         for (Path path : paths) {
             String relativeFilePath = path.toString().substring(this.location.toString().length());
             if (this.index.findByPath(relativeFilePath).isDeleted()) {
@@ -226,7 +227,6 @@ public class Repository {
                 } else {
                     repo.cleanup();
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
                 System.out.println("Could not complete the task");

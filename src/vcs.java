@@ -29,6 +29,7 @@ public class vcs {
         File repoList = new File("D:/vcs/repos.vcs");
         String currentDirectory = System.getProperty("user.dir");
         Repository repo = Repository.getRepo(currentDirectory);
+        
         if (args[0] != null) {
             if (args[0].equals("init")) {
                 if (repo != null) {
@@ -47,7 +48,7 @@ public class vcs {
                                 paths[i - 1] = Paths.get(currentDirectory, args[i]);
                                 repo.stage(paths);
                             }
-                        } else if(args[1].equals("."){
+                        } else if(args[1].equals(".")){
                             repo.stageAllChanges();
                         }
                     } else {

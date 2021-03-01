@@ -30,7 +30,6 @@ public class Vcs {
     public static void main(String[] args) throws IOException {
         File repoList = new File("D:/vcs/repos.vcs");
         String currentDirectory = System.getProperty("user.dir");
-        System.out.print(currentDirectory+ "hello ");
         Repository repo = Repository.getRepo(currentDirectory);
         if (args[0] != null) {
             if (args[0].equals("init")) {
