@@ -31,6 +31,7 @@ public class Vcs {
         File repoList = new File("D:/vcs/repos.vcs");
         String currentDirectory = System.getProperty("user.dir");
         Repository repo = Repository.getRepo(currentDirectory);
+
         if (args[0] != null) {
             if (args[0].equals("init")) {
                 if (repo == null) {
@@ -41,17 +42,17 @@ public class Vcs {
             }
             if (repo != null) {
                 if (args[0].equals("add")) {
+
                     if (args.length > 1) {
-                        List<Path> paths = new ArrayList<>();
-                        for (int i = 1; i < args.length; i++) {
-                            if (args[i] == ".") {
-                                paths.removeAll(paths);
-                                paths.add(Paths.get(currentDirectory));
-                                break;
+                        if (args[1].equals(".")) {
+                            repo.stageContents(Paths.get(currentDirectory));
+                        } else {
+                            List<Path> paths = new ArrayList<>();
+                            for (int i = 1; i < args.length; i++) {
+                                paths.add(Paths.get(currentDirectory, args[i]));
                             }
-                            paths.add(Paths.get(currentDirectory, args[i]));
+                            repo.stage(paths);
                         }
-                        repo.stage(paths);
 
                     } else {
                         System.out.println("Usage , add [file names | . ]");

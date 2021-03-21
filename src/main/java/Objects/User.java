@@ -35,6 +35,7 @@ public class User {
                 }
             });
         } catch (IOException ex) {
+            ex.printStackTrace();
             System.out.println("could not get the user info");
         }
     }

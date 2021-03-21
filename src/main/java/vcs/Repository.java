@@ -19,6 +19,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static vcs.Constants.REGISTER_LOCATION;
 
@@ -86,7 +87,7 @@ public class Repository {
     }
 
     public void stage(List<Path> paths) {
-            System.out.println(paths);
+        System.out.println(paths);
         for (Path path : paths) {
             String relativeFilePath = path.toString().substring(this.location.toString().length());
             if (this.index.findByPath(relativeFilePath).isDeleted()) {
@@ -108,8 +109,31 @@ public class Repository {
         }
     }
 
-    private void stageFile(Path filePath) {
+    public void stageContents(Path path) {
+        Path structuresPath = path.resolve(Constants.VCS_FOLDER);
+        try ( Stream<Path> paths = Files.list(path)) {
+            paths.forEach((file) -> {
+                if (Files.isDirectory(file)) {
+                    if (!file.equals(structuresPath)) {
+                        this.stageDirectory(file);
+                    }
+                } else {
+                    System.out.println("staging file: " + file);
+                    this.stageFile(file);
+                }
+            });
+        } catch (IOException e) {
+            System.out.println("Could not read the folder");
+        }
+        try {
+            index.flushToStore();
+        } catch (IOException ex) {
+            System.out.println("Could not modify the index");
+        }
 
+    }
+
+    private void stageFile(Path filePath) {
         Objects.Object childObject = null;
         ChildTypes childType = null;
         while (!filePath.equals(this.location)) {
@@ -138,11 +162,11 @@ public class Repository {
                     childObject = dirInstance;
                     childType = ChildTypes.TREE;
                 } catch (IOException e) {
-                    System.err.println("could not access the objects files");
+                    System.out.println("could not access the objects files");
                 }
 
             } else {
-                System.err.println("file does not exist");
+                System.out.println("file does not exist");
             }
             filePath = filePath.getParent();
         }
