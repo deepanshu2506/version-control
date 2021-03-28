@@ -36,6 +36,19 @@ this command lists all the branches and points to the current working branch
 	
 
     vcs branch
+    
+**configuration**
+this command configures the username and email befor using the VCS
+	
+
+    vcs configure [username|email] "value"
+    
+**rollback to previous commit**
+this command is useful to rollback to the previous nth commit
+	
+
+    vcs rollback n
+    nth commit = CURRENT_COMMIT-n
 	    
 	    
 ## setup
