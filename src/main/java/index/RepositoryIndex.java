@@ -217,6 +217,7 @@ public class RepositoryIndex {
 
     public void resolveChanges(RepositoryIndex newIndex) throws IOException {
         List<AbstractDelta<String>> deltas = DiffGenerator.getIndexDiff(this, newIndex);
+        System.out.println(deltas);
         List<IndexElement> insertIndexElements = new LinkedList<>();
         List<IndexElement> deleteIndexElements = new LinkedList<>();
 
@@ -254,8 +255,10 @@ public class RepositoryIndex {
                 }
             }
         });
-        FileUtils.createFiles(this.getRepoPath(), insertIndexElements);
+        System.out.println(deleteIndexElements);
+        System.out.println(insertIndexElements);
         FileUtils.deleteFiles(this.getRepoPath(), deleteIndexElements);
+        FileUtils.createFiles(this.getRepoPath(), insertIndexElements);
     }
 
 }

@@ -61,12 +61,45 @@ public class Commit extends Objects.Object {
 
         Path commitFilePath = repoPath.resolve(Constants.VCS_COMMIT).resolve(commitId);
         String indexFileHash = Files.readAllLines(commitFilePath).get(Constants.INDEX_HASH_IN_COMMIT).split(":")[1];
-        System.out.println(indexFileHash);
         RepositoryIndex commitIndex = RepositoryIndex.getCommitIndex(repoPath, indexFileHash);
 
         Commit commit = Commit.createCommit(currentBranch, commitIndex);
         return commit;
 
+    }
+
+    public static Commit getNthCommit(Branch currentBranch, int n) throws IOException {
+        String commitId = currentBranch.getCommitId();
+        Commit prevCommit = null;
+        for (int i = 0; i < n; i++) {
+            System.out.println("here");
+            prevCommit = getPrevCommit(commitId, currentBranch);
+            if (prevCommit == null) {
+                return null;
+            }
+        }
+        return prevCommit;
+    }
+
+    private static Commit getPrevCommit(String currCommitId, Branch currBranch) {
+        Path commitsDirectory = currBranch.getRepoPath().resolve(Constants.VCS_COMMIT);
+        Path commitFilePath = commitsDirectory.resolve(currCommitId);
+        String commitContents = FileUtils.getFileContents(commitFilePath).toString();
+        String lineSeparator = System.lineSeparator();
+        String[] commitFileContents = commitContents.split(lineSeparator);
+        String previousCommit = commitFileContents[Constants.PREVIOUS_COMMIT_HASH_LINE].split(":")[1];
+
+        if (!previousCommit.equals("null") && !previousCommit.equals("000000")) {
+            Path prevCommitPath = commitsDirectory.resolve(previousCommit);
+            String[] prevCommitContents = FileUtils.getFileContents(prevCommitPath).toString().split(lineSeparator);
+            String indexFileHash = prevCommitContents[Constants.INDEX_HASH_IN_COMMIT].split(":")[1];
+            RepositoryIndex commitIndex = RepositoryIndex.getCommitIndex(currBranch.getRepoPath(), indexFileHash);
+            Commit commit = Commit.createCommit(currBranch, commitIndex);
+            commit.setHash(previousCommit);
+            return commit;
+        } else {
+            return null;
+        }
     }
 
     public static Commit createCommit(Branch branch, RepositoryIndex indexSnapshot) {

@@ -223,6 +223,20 @@ public class Repository {
         }
     }
 
+    public void rollback(int n) {
+        try {
+            Commit currCommit = Commit.getCommitFromId(currentBranch,currentBranch.getCommitId());
+            Commit destinationCommit = Commit.getNthCommit(currentBranch, n);
+            System.out.println(index);
+            System.out.println(destinationCommit);
+            index.resolveChanges(destinationCommit.getIndexSnapshot());
+//            this.currentBranch.registerToBranch(destinationCommit);
+            
+        } catch (IOException err) {
+            err.printStackTrace();
+        }
+    }
+
     public static Repository init(String currentDirectory) {
         Repository repo = null;
         File vcsRoot = new File(currentDirectory + "\\" + ".vcs");

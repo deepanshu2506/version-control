@@ -5,9 +5,7 @@ import Objects.User;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.WatchService;
@@ -76,6 +74,11 @@ public class Vcs {
                     repo.status();
                 } else if (args[0].equals("checkout")) {
                     repo.switchBranch(args[1]);
+                }
+                
+                else if(args[0].equals("rollback")){
+                    int n = Integer.parseInt(args[1]);
+                    repo.rollback(n);
                 }
             } else {
                 System.out.println("Repository does not exist");

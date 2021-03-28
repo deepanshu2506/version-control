@@ -97,6 +97,16 @@ public class Branch {
                     }
                 });
     }
+    
+    public void registerToBranch(String commitId){
+        try {
+            
+            Files.write(this.branchFilePath, commitId.getBytes());
+            this.setCommitId(commitId);
+        } catch (IOException ex) {
+            System.out.println(Paths.get(Constants.MASTER_BRANCH));
+        }
+    }
 
     public void registerToBranch(Commit newCommit) {
         try {
