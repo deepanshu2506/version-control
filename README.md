@@ -61,20 +61,6 @@ this command is useful to rollback to the previous nth commit
 and you are good to go
 
 
-## contributing
-following features are to be developed
- - [ ] merging branches
- - [ ] restoring repo state to a past commit
- - [ ] ignoring files similar to gitignore
- - [ ] reducing the size of the .vcs folder
- - [ ] reducing the space utilised by the file index
- 
- create an issue with the problem that you are going to solve and then submit a pr after you complete with the solution
-
-## web-portal
-A web portal on lines of github for this version-control-system is to be developed
-Feel free to knock yourself and come up with a solution.
-
 
 
 
